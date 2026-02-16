@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.LoginController" 
+      alignment="CENTER" spacing="20" 
+      style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);">
+    
+    <padding>
+        <Insets top="50" right="50" bottom="50" left="50"/>
+    </padding>
+    
+    <!-- Carte de connexion -->
+    <VBox alignment="CENTER" spacing="20" maxWidth="350" 
+          style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 40;">
+        
+        <!-- Logo/Titre -->
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="🏥 SGPA" style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #667eea;"/>
+            <Label text="Système de Gestion de Pharmacie" style="-fx-font-size: 12px; -fx-text-fill: #7f8c8d;"/>
+        </VBox>
+        
+        <Separator prefWidth="300"/>
+        
+        <!-- Formulaire -->
+        <VBox spacing="15" alignment="CENTER">
+            <Label text="Connexion" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            
+            <VBox spacing="5">
+                <Label text="Nom d'utilisateur" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                <TextField fx:id="txtUsername" promptText="Entrez votre username" prefWidth="300"
+                          style="-fx-padding: 10; -fx-font-size: 14px;"/>
+            </VBox>
+            
+            <VBox spacing="5">
+                <Label text="Mot de passe" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
+                <PasswordField fx:id="txtPassword" promptText="Entrez votre mot de passe" prefWidth="300"
+                              style="-fx-padding: 10; -fx-font-size: 14px;"/>
+            </VBox>
+            
+            <!-- Message d'erreur -->
+            <Label fx:id="lblError" text="" visible="false"
+                   style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+            
+            <!-- Boutons -->
+            <Button text="Se connecter" onAction="#handleLogin" prefWidth="300"
+                    style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 5; -fx-cursor: hand;">
+                <font>
+                    <Font name="System Bold" size="14"/>
+                </font>
+            </Button>
+        </VBox>
+    </VBox>
+</VBox>

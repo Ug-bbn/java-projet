@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.VenteController" spacing="15">
+    
+    <Label text="💰 Gestion des Ventes" styleClass="section-title">
+        <font>
+            <Font name="System Bold" size="20"/>
+        </font>
+    </Label>
+    
+    <Separator/>
+    
+    <!-- Formulaire de vente -->
+    <VBox spacing="10" styleClass="details-panel">
+        <Label text="Nouvelle Vente" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Médicament:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <ComboBox fx:id="cmbMedicament" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity"/>
+            
+            <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtQuantite" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            
+            <CheckBox fx:id="chkOrdonnance" text="Vente sur ordonnance" 
+                      GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+            
+            <Label fx:id="lblStockDisponible" text="" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"
+                   GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+        </GridPane>
+        
+        <!-- Boutons -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Nouveau" onAction="#handleNouveau" styleClass="button"/>
+            <Button text="Enregistrer Vente" onAction="#handleEnregistrerVente" styleClass="button-success"/>
+        </HBox>
+    </VBox>
+    
+    <!-- Historique des ventes -->
+    <VBox spacing="10" VBox.vgrow="ALWAYS">
+        <Label text="Historique des Ventes" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <TableView fx:id="tableHistorique" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colMedicaments" text="Médicaments" prefWidth="250"/>
+                <TableColumn fx:id="colDate" text="Date/Heure" prefWidth="200"/>
+                <TableColumn fx:id="colTotal" text="Total (€)" prefWidth="100"/>
+                <TableColumn fx:id="colOrdonnance" text="Ordonnance" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -1,0 +1,10 @@
+target/
+.vscode/
+.idea/
+old/
+*.env
+database.properties
+*.class
+*.jar
+*.log
+.DS_Store

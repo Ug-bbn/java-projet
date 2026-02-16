@@ -1,0 +1,5 @@
+# Configuration de la base de données PostgreSQL
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://localhost:5432/sgpa
+db.username=votre_utilisateur
+db.password=votre_mot_de_passe

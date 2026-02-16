@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.MedicamentController" spacing="15">
+    
+    <Label text="💊 Gestion des Médicaments" styleClass="section-title">
+        <font>
+            <Font name="System Bold" size="20"/>
+        </font>
+    </Label>
+    
+    <Separator/>
+    
+    <!-- TableView -->
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colNom" text="Nom Commercial" prefWidth="150"/>
+            <TableColumn fx:id="colPrincipe" text="Principe Actif" prefWidth="120"/>
+            <TableColumn fx:id="colForme" text="Forme" prefWidth="100"/>
+            <TableColumn fx:id="colDosage" text="Dosage" prefWidth="80"/>
+            <TableColumn fx:id="colPrix" text="Prix (€)" prefWidth="80"/>
+            <TableColumn fx:id="colOrdonnance" text="Ordonnance" prefWidth="100"/>
+            <TableColumn fx:id="colSeuil" text="Seuil Min" prefWidth="80"/>
+        </columns>
+    </TableView>
+    
+    <!-- Formulaire -->
+    <VBox spacing="10" styleClass="details-panel">
+        <Label text="Détails du Médicament" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Nom commercial:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtNom" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            
+            <Label text="Principe actif:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtPrincipe" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+            
+            <Label text="Forme galénique:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <ComboBox fx:id="cmbForme" prefWidth="200" promptText="Sélectionnez une forme"/>
+                <TextField fx:id="txtFormeAutre" promptText="Précisez la forme..." visible="false" managed="false"/>
+            </VBox>
+            
+            <Label text="Dosage:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtDosage" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            
+            <Label text="Prix public (€):" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtPrix" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            
+            <Label text="Seuil minimum:" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+            <TextField fx:id="txtSeuil" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+            
+            <CheckBox fx:id="chkOrdonnance" text="Nécessite une ordonnance" 
+                      GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+        </GridPane>
+        
+        <!-- Boutons -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Nouveau" onAction="#handleNouveau" styleClass="button"/>
+            <Button text="Ajouter" onAction="#handleAjouter" styleClass="button-success"/>
+            <Button text="Modifier" onAction="#handleModifier" styleClass="button"/>
+            <Button text="Supprimer" onAction="#handleSupprimer" styleClass="button-danger"/>
+        </HBox>
+    </VBox>
+</VBox>

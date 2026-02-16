@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.CommandeController" spacing="15">
+    
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="🚚 Gestion des Commandes" styleClass="section-title">
+            <font>
+                <Font name="System Bold" size="20"/>
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🔄 Actualiser" onAction="#handleActualiser" styleClass="button"/>
+    </HBox>
+    
+    <Separator/>
+    
+    <!-- Section Fournisseurs -->
+    <VBox spacing="10" styleClass="details-panel">
+        <Label text="Ajouter un Fournisseur" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtNomFournisseur" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            
+            <Label text="Contact:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtContactFournisseur" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+            
+            <Label text="Adresse:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtAdresseFournisseur" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3"/>
+        </GridPane>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Ajouter Fournisseur" onAction="#handleAjouterFournisseur" styleClass="button-success"/>
+        </HBox>
+    </VBox>
+    
+    <!-- Section Commandes -->
+    <VBox spacing="10" styleClass="details-panel">
+        <Label text="Créer une Commande" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Fournisseur:"/>
+            <ComboBox fx:id="cmbFournisseur" prefWidth="300"/>
+            <Button text="Créer Commande" onAction="#handleCreerCommande" styleClass="button-success"/>
+        </HBox>
+        
+        <Label text="💡 Note: Pour ajouter des articles à la commande, utilisez la version console." 
+               style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;"/>
+    </VBox>
+    
+    <!-- Liste des commandes -->
+    <VBox spacing="10" VBox.vgrow="ALWAYS">
+        <Label text="Liste des Commandes" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
+        
+        <TableView fx:id="tableCommandes" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colFournisseur" text="Fournisseur" prefWidth="200"/>
+                <TableColumn fx:id="colDate" text="Date" prefWidth="200"/>
+                <TableColumn fx:id="colStatut" text="Statut" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

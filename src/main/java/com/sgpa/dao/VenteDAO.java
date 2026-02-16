@@ -1,0 +1,14 @@
+package com.sgpa.dao;
+
+import com.sgpa.model.Vente;
+import com.sgpa.model.LigneVente;
+import java.util.List;
+
+public interface VenteDAO {
+    void create(Vente vente);
+    Vente findById(int id);
+    List<Vente> findAll();
+    void delete(int id);
+    void addLigneVente(int venteId, LigneVente ligne);
+    List<LigneVente> getLignesVente(int venteId);
+}

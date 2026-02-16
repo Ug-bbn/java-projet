@@ -1,0 +1,106 @@
+package com.sgpa.service;
+
+import com.sgpa.dao.UtilisateurDAO;
+import com.sgpa.dao.impl.UtilisateurDAOImpl;
+import com.sgpa.model.Role;
+import com.sgpa.model.Utilisateur;
+import org.mindrot.jbcrypt.BCrypt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class AuthentificationService {
+    private static final Logger logger = LoggerFactory.getLogger(AuthentificationService.class);
+    private UtilisateurDAO utilisateurDAO;
+
+    public AuthentificationService() {
+        this.utilisateurDAO = new UtilisateurDAOImpl();
+    }
+
+    public AuthentificationService(UtilisateurDAO utilisateurDAO) {
+        this.utilisateurDAO = utilisateurDAO;
+    }
+
+    public Utilisateur login(String username, String password) {
+        Utilisateur utilisateur = utilisateurDAO.findByUsername(username);
+
+        if (utilisateur == null) {
+            logger.info("Tentative de connexion echouee : utilisateur {} introuvable", username);
+            return null;
+        }
+
+        String storedHash = utilisateur.getPasswordHash();
+
+        // Migration transparente : si le hash ne commence pas par $2a$, c'est du SHA-256
+        if (!storedHash.startsWith("$2a$")) {
+            // Verifier avec SHA-256
+            String sha256Hash = sha256Hash(password);
+            if (sha256Hash.equals(storedHash)) {
+                // Migration vers BCrypt
+                String bcryptHash = hashPassword(password);
+                utilisateur.setPasswordHash(bcryptHash);
+                utilisateurDAO.update(utilisateur);
+                logger.info("Migration du hash SHA-256 vers BCrypt pour l'utilisateur {}", username);
+                return utilisateur;
+            }
+            logger.info("Tentative de connexion echouee pour l'utilisateur {}", username);
+            return null;
+        }
+
+        // Verification BCrypt
+        if (BCrypt.checkpw(password, storedHash)) {
+            logger.info("Connexion reussie pour l'utilisateur {}", username);
+            return utilisateur;
+        }
+
+        logger.info("Tentative de connexion echouee pour l'utilisateur {}", username);
+        return null;
+    }
+
+    public boolean register(String username, String password, String nom, String prenom) {
+        return register(username, password, nom, prenom, "USER");
+    }
+
+    public boolean register(String username, String password, String nom, String prenom, String role) {
+        if (utilisateurDAO.usernameExists(username)) {
+            logger.info("Tentative d'inscription avec un username existant : {}", username);
+            return false;
+        }
+
+        String passwordHash = hashPassword(password);
+        Utilisateur utilisateur = new Utilisateur(username, passwordHash, nom, prenom);
+        utilisateur.setRole(Role.fromString(role));
+        utilisateurDAO.create(utilisateur);
+
+        logger.info("Utilisateur {} cree avec succes", username);
+        return true;
+    }
+
+    public boolean isAdmin(Utilisateur utilisateur) {
+        return utilisateur != null && Role.ADMIN.equals(utilisateur.getRole());
+    }
+
+    public String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private String sha256Hash(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Erreur lors du hachage du mot de passe", e);
+        }
+    }
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.AlerteController" spacing="15">
+    
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="⚠️ Alertes" styleClass="section-title">
+            <font>
+                <Font name="System Bold" size="20"/>
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🔄 Actualiser" onAction="#handleActualiser" styleClass="button"/>
+    </HBox>
+    
+    <Separator/>
+    
+    <!-- Alertes Stock Minimum -->
+    <VBox spacing="10">
+        <Label text="📉 Stock Minimum Atteint" styleClass="label-bold" style="-fx-text-fill: #e67e22;">
+            <font>
+                <Font name="System Bold" size="16"/>
+            </font>
+        </Label>
+        
+        <TableView fx:id="tableStockMin" prefHeight="200">
+            <columns>
+                <TableColumn fx:id="colNomStock" text="Médicament" prefWidth="300"/>
+                <TableColumn fx:id="colStockActuel" text="Stock Actuel" prefWidth="150"/>
+                <TableColumn fx:id="colSeuilMin" text="Seuil Minimum" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+    
+    <!-- Alertes Péremption -->
+    <VBox spacing="10">
+        <Label text="⏰ Péremption dans moins de 3 mois" styleClass="label-bold" style="-fx-text-fill: #c0392b;">
+            <font>
+                <Font name="System Bold" size="16"/>
+            </font>
+        </Label>
+        
+        <TableView fx:id="tablePeremption" prefHeight="200">
+            <columns>
+                <TableColumn fx:id="colNomPerem" text="Médicament" prefWidth="250"/>
+                <TableColumn fx:id="colNumLot" text="N° Lot" prefWidth="150"/>
+                <TableColumn fx:id="colQuantite" text="Quantité" prefWidth="100"/>
+                <TableColumn fx:id="colDatePerem" text="Date Péremption" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgpa.controller.DashboardController">
+    <content>
+        <VBox spacing="20.0" styleClass="dashboard-container">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="Tableau de Bord" styleClass="view-title">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                
+                <!-- KPI CARDS using GridPane for responsive layout -->
+                <GridPane hgap="20.0" vgap="20.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" percentWidth="25.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" percentWidth="25.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="120.0" vgrow="ALWAYS" />
+                    </rowConstraints>
+                    <children>
+                        <!-- Card 1: Total Médicaments -->
+                        <VBox styleClass="dashboard-card, card-blue" GridPane.columnIndex="0">
+                            <children>
+                                <Label text="Médicaments" styleClass="card-title" />
+                                <Label fx:id="lblTotalMedicaments" text="0" styleClass="card-value" />
+                                <Label text="Référencés" styleClass="card-subtitle" />
+                            </children>
+                        </VBox>
+                        
+                        <!-- Card 2: Alertes Stock -->
+                        <VBox styleClass="dashboard-card, card-red" GridPane.columnIndex="1">
+                            <children>
+                                <Label text="Alertes Stock" styleClass="card-title" />
+                                <Label fx:id="lblAlertesStock" text="0" styleClass="card-value" />
+                                <Label text="À réapprovisionner" styleClass="card-subtitle" />
+                            </children>
+                        </VBox>
+                        
+                        <!-- Card 3: Ventes du Jour -->
+                        <VBox styleClass="dashboard-card, card-green" GridPane.columnIndex="2">
+                            <children>
+                                <Label text="Ventes du Jour" styleClass="card-title" />
+                                <Label fx:id="lblVentesDuJour" text="0.00 €" styleClass="card-value" />
+                                <Label text="Chiffre d'affaires" styleClass="card-subtitle" />
+                            </children>
+                        </VBox>
+                        
+                        <!-- Card 4: Commandes en Attente -->
+                        <VBox styleClass="dashboard-card, card-orange" GridPane.columnIndex="3">
+                            <children>
+                                <Label text="Commandes" styleClass="card-title" />
+                                <Label fx:id="lblCommandesEnAttente" text="0" styleClass="card-value" />
+                                <Label text="En attente de réception" styleClass="card-subtitle" />
+                            </children>
+                        </VBox>
+                    </children>
+                </GridPane>
+                
+                <!-- CHARTS SECTION -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Évolution des Ventes (7 jours)" styleClass="section-title" />
+                                <BarChart fx:id="chartVentesSemaine" legendVisible="false" VBox.vgrow="ALWAYS">
+                                    <xAxis>
+                                        <CategoryAxis label="Date" />
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Ventes (€)" />
+                                    </yAxis>
+                                </BarChart>
+                            </children>
+                        </VBox>
+                        
+                        <VBox styleClass="chart-container" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Répartition du Stock" styleClass="section-title" />
+                                <PieChart fx:id="chartRepartitionStock" VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                
+                <!-- LISTS SECTION -->
+                <HBox spacing="20.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox styleClass="list-container" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Dernières Ventes" styleClass="section-title" />
+                                <ListView fx:id="listDernieresVentes" VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+                        
+                        <VBox styleClass="list-container" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Alertes Récents" styleClass="section-title" />
+                                <ListView fx:id="listAlertes" VBox.vgrow="ALWAYS" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

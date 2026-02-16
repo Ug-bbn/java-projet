@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.sgpa.controller.UtilisateurController" spacing="20">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <!-- Titre -->
+    <Label text="Gestion des Utilisateurs" styleClass="section-title"/>
+    
+    <!-- Tableau des utilisateurs -->
+    <TableView fx:id="tableUtilisateurs" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="colUsername" text="Username" prefWidth="150"/>
+            <TableColumn fx:id="colNom" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="150"/>
+            <TableColumn fx:id="colRole" text="Rôle" prefWidth="100"/>
+            <TableColumn fx:id="colDateCreation" text="Date Création" prefWidth="200"/>
+        </columns>
+    </TableView>
+    
+    <!-- Formulaire de création/modification -->
+    <VBox spacing="15" styleClass="details-panel">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <Label text="Créer / Modifier un utilisateur" styleClass="form-title"/>
+        
+        <GridPane hgap="15" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints minWidth="120" prefWidth="120"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="txtUsername" promptText="Nom d'utilisateur" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            
+            <Label text="Mot de passe:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+            <PasswordField fx:id="txtPassword" promptText="Laisser vide pour ne pas changer" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
+            
+            <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtNom" promptText="Nom de famille" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            
+            <Label text="Prénom:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <TextField fx:id="txtPrenom" promptText="Prénom" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+            
+            <Label text="Rôle:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <ComboBox fx:id="cmbRole" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        </GridPane>
+        
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="➕ Créer" onAction="#handleCreate" styleClass="btn-primary"/>
+            <Button text="✏️ Modifier" onAction="#handleUpdate" styleClass="btn-warning"/>
+            <Button text="🗑️ Supprimer" onAction="#handleDelete" styleClass="btn-danger"/>
+            <Button text="🔄 Réinitialiser" onAction="#handleClear" styleClass="btn-secondary"/>
+        </HBox>
+        
+        <Label fx:id="lblMessage" styleClass="message-label" visible="false"/>
+    </VBox>
+</VBox>
