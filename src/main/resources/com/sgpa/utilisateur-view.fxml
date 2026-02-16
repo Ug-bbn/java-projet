@@ -59,10 +59,10 @@
         </GridPane>
         
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Button text="➕ Créer" onAction="#handleCreate" styleClass="btn-primary"/>
-            <Button text="✏️ Modifier" onAction="#handleUpdate" styleClass="btn-warning"/>
-            <Button text="🗑️ Supprimer" onAction="#handleDelete" styleClass="btn-danger"/>
-            <Button text="🔄 Réinitialiser" onAction="#handleClear" styleClass="btn-secondary"/>
+            <Button text="Creer" onAction="#handleCreate" styleClass="button-primary"/>
+            <Button text="Modifier" onAction="#handleUpdate" styleClass="button-success"/>
+            <Button text="Supprimer" onAction="#handleDelete" styleClass="button-danger"/>
+            <Button text="Reinitialiser" onAction="#handleClear"/>
         </HBox>
         
         <Label fx:id="lblMessage" styleClass="message-label" visible="false"/>

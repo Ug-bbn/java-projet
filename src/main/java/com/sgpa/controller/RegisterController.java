@@ -1,15 +1,20 @@
 package com.sgpa.controller;
 
 import com.sgpa.service.AuthentificationService;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class RegisterController {
+    private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
@@ -54,16 +59,10 @@ public class RegisterController {
         boolean success = authService.register(username, password, nom, prenom);
 
         if (success) {
-            showSuccess("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
-            // Retour au login après 2 secondes
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-                    javafx.application.Platform.runLater(this::handleRetourLogin);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
+            showSuccess("Compte cree avec succes ! Vous pouvez maintenant vous connecter.");
+            PauseTransition delay = new PauseTransition(Duration.seconds(2));
+            delay.setOnFinished(e -> handleRetourLogin());
+            delay.play();
         } else {
             showError("Ce nom d'utilisateur existe déjà.");
         }
@@ -79,7 +78,7 @@ public class RegisterController {
             stage.setTitle("Connexion - SGPA");
             stage.setMaximized(true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erreur lors du retour a la page de connexion", e);
         }
     }
 

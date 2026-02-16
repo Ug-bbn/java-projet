@@ -3,72 +3,58 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.sgpa.controller.RegisterController" 
-      alignment="CENTER" spacing="20" 
-      style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);">
-    
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.sgpa.controller.RegisterController"
+      alignment="CENTER" spacing="20"
+      styleClass="login-background"
+      stylesheets="@style-light.css">
+
     <padding>
         <Insets top="30" right="50" bottom="30" left="50"/>
     </padding>
-    
+
     <!-- Carte d'inscription -->
-    <VBox alignment="CENTER" spacing="15" maxWidth="400" 
-          style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 30;">
-        
+    <VBox alignment="CENTER" spacing="15" maxWidth="400" styleClass="login-card">
+
         <!-- Titre -->
-        <Label text="Créer un compte" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-        
+        <Label text="Créer un compte" styleClass="form-title"/>
+
         <!-- Formulaire -->
         <VBox spacing="12" alignment="CENTER">
             <VBox spacing="5">
-                <Label text="Nom d'utilisateur *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <TextField fx:id="txtUsername" promptText="Minimum 3 caractères" prefWidth="350"
-                          style="-fx-padding: 10; -fx-font-size: 14px;"/>
+                <Label text="Nom d'utilisateur *" styleClass="form-label"/>
+                <TextField fx:id="txtUsername" promptText="Minimum 3 caractères" prefWidth="350"/>
             </VBox>
-            
+
             <VBox spacing="5">
-                <Label text="Nom *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <TextField fx:id="txtNom" promptText="Votre nom" prefWidth="350"
-                          style="-fx-padding: 10; -fx-font-size: 14px;"/>
+                <Label text="Nom *" styleClass="form-label"/>
+                <TextField fx:id="txtNom" promptText="Votre nom" prefWidth="350"/>
             </VBox>
-            
+
             <VBox spacing="5">
-                <Label text="Prénom *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <TextField fx:id="txtPrenom" promptText="Votre prénom" prefWidth="350"
-                          style="-fx-padding: 10; -fx-font-size: 14px;"/>
+                <Label text="Prénom *" styleClass="form-label"/>
+                <TextField fx:id="txtPrenom" promptText="Votre prénom" prefWidth="350"/>
             </VBox>
-            
+
             <VBox spacing="5">
-                <Label text="Mot de passe *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <PasswordField fx:id="txtPassword" promptText="Minimum 4 caractères" prefWidth="350"
-                              style="-fx-padding: 10; -fx-font-size: 14px;"/>
+                <Label text="Mot de passe *" styleClass="form-label"/>
+                <PasswordField fx:id="txtPassword" promptText="Minimum 4 caractères" prefWidth="350"/>
             </VBox>
-            
+
             <VBox spacing="5">
-                <Label text="Confirmer le mot de passe *" style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
-                <PasswordField fx:id="txtPasswordConfirm" promptText="Retapez votre mot de passe" prefWidth="350"
-                              style="-fx-padding: 10; -fx-font-size: 14px;"/>
+                <Label text="Confirmer le mot de passe *" styleClass="form-label"/>
+                <PasswordField fx:id="txtPasswordConfirm" promptText="Retapez votre mot de passe" prefWidth="350"/>
             </VBox>
-            
+
             <!-- Messages -->
-            <Label fx:id="lblError" text="" visible="false"
-                   style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
-            <Label fx:id="lblSuccess" text="" visible="false"
-                   style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
-            
+            <Label fx:id="lblError" text="" visible="false" styleClass="error-label"/>
+            <Label fx:id="lblSuccess" text="" visible="false" styleClass="success-label"/>
+
             <!-- Boutons -->
-            <Button text="Créer le compte" onAction="#handleRegister" prefWidth="350"
-                    style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 5; -fx-cursor: hand;">
-                <font>
-                    <Font name="System Bold" size="14"/>
-                </font>
-            </Button>
-            
-            <Button text="← Retour à la connexion" onAction="#handleRetourLogin" prefWidth="350"
-                    style="-fx-background-color: transparent; -fx-text-fill: #7f8c8d; -fx-border-color: #bdc3c7; -fx-border-radius: 5; -fx-padding: 10; -fx-cursor: hand;"/>
+            <Button text="Créer le compte" onAction="#handleRegister" prefWidth="350" styleClass="register-button"/>
+
+            <Button text="← Retour à la connexion" onAction="#handleRetourLogin" prefWidth="350" styleClass="back-button"/>
         </VBox>
     </VBox>
 </VBox>

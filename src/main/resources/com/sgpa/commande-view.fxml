@@ -65,8 +65,7 @@
             <Button text="Créer Commande" onAction="#handleCreerCommande" styleClass="button-success"/>
         </HBox>
         
-        <Label text="💡 Note: Pour ajouter des articles à la commande, utilisez la version console." 
-               style="-fx-text-fill: #7f8c8d; -fx-font-style: italic;"/>
+        <!-- Fonctionnalite d'ajout d'articles a implementer -->
     </VBox>
     
     <!-- Liste des commandes -->

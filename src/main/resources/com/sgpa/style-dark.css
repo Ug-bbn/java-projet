@@ -554,3 +554,82 @@ StackPane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
+
+/* === LOGIN / REGISTER === */
+.login-background {
+    -fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+}
+
+.login-title {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #667eea;
+}
+
+.login-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #8892b0;
+}
+
+.form-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ccd6f6;
+}
+
+.form-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #a8b2d1;
+}
+
+.login-button {
+    -fx-background-color: #667eea;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #764ba2;
+}
+
+.register-button {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 12;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.register-button:hover {
+    -fx-background-color: #2ecc71;
+}
+
+.back-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #8892b0;
+    -fx-border-color: #0f3460;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #0f3460;
+    -fx-text-fill: #ccd6f6;
+}
+
+.error-label {
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}
+
+.success-label {
+    -fx-text-fill: #27ae60;
+    -fx-font-weight: bold;
+}

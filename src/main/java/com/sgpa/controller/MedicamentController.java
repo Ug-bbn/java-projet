@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.math.BigDecimal;
+
 public class MedicamentController {
 
     @FXML private TableView<Medicament> tableView;
@@ -108,7 +110,7 @@ public class MedicamentController {
         }
         
         txtDosage.setText(med.getDosage());
-        txtPrix.setText(String.valueOf(med.getPrixPublic()));
+        txtPrix.setText(med.getPrixPublic() != null ? med.getPrixPublic().toPlainString() : "0");
         chkOrdonnance.setSelected(med.isNecessiteOrdonnance());
         txtSeuil.setText(String.valueOf(med.getSeuilMinAlerte()));
     }
@@ -128,7 +130,7 @@ public class MedicamentController {
                 txtPrincipe.getText(),
                 forme,
                 txtDosage.getText(),
-                Double.parseDouble(txtPrix.getText()),
+                new BigDecimal(txtPrix.getText()),
                 chkOrdonnance.isSelected(),
                 Integer.parseInt(txtSeuil.getText())
             );
@@ -160,7 +162,7 @@ public class MedicamentController {
             selectedMedicament.setPrincipeActif(txtPrincipe.getText());
             selectedMedicament.setFormeGalenique(forme);
             selectedMedicament.setDosage(txtDosage.getText());
-            selectedMedicament.setPrixPublic(Double.parseDouble(txtPrix.getText()));
+            selectedMedicament.setPrixPublic(new BigDecimal(txtPrix.getText()));
             selectedMedicament.setNecessiteOrdonnance(chkOrdonnance.isSelected());
             selectedMedicament.setSeuilMinAlerte(Integer.parseInt(txtSeuil.getText()));
 
@@ -184,12 +186,12 @@ public class MedicamentController {
         confirmation.setHeaderText("Supprimer le médicament ?");
         confirmation.setContentText("Êtes-vous sûr de vouloir supprimer " + selectedMedicament.getNomCommercial() + " ?");
 
-        if (confirmation.showAndWait().get() == ButtonType.OK) {
+        confirmation.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
             service.supprimerMedicament(selectedMedicament.getId());
             chargerMedicaments();
             viderChamps();
-            showAlert("Succès", "Médicament supprimé avec succès !", Alert.AlertType.INFORMATION);
-        }
+            showAlert("Succes", "Medicament supprime avec succes !", Alert.AlertType.INFORMATION);
+        });
     }
 
     @FXML

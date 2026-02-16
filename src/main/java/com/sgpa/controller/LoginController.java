@@ -8,10 +8,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class LoginController {
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
@@ -24,8 +27,6 @@ public class LoginController {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText();
 
-        System.out.println("🔐 Tentative de connexion pour: " + username);
-
         if (username.isEmpty() || password.isEmpty()) {
             showError("Veuillez remplir tous les champs.");
             return;
@@ -34,41 +35,24 @@ public class LoginController {
         Utilisateur utilisateur = authService.login(username, password);
 
         if (utilisateur != null) {
-            // Connexion réussie
-            System.out.println("✅ Authentification réussie pour: " + utilisateur.getNomComplet());
             SessionManager.getInstance().login(utilisateur);
-            System.out.println("✅ Session créée");
+            logger.info("Connexion reussie pour {}", username);
             openMainApp();
         } else {
-            System.out.println("❌ Authentification échouée");
             showError("Identifiants incorrects.");
         }
     }
-
-
 
     private void openMainApp() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/sgpa/main-view.fxml"));
             Stage stage = (Stage) txtUsername.getScene().getWindow();
-            
-            // Obtenir les dimensions de l'écran
-            javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
-            javafx.geometry.Rectangle2D bounds = screen.getVisualBounds();
-            
-            // Créer la scène avec les dimensions de l'écran
-            Scene scene = new Scene(fxmlLoader.load(), bounds.getWidth(), bounds.getHeight());
-            
-            stage.setTitle("SGPA - Système de Gestion de Pharmacie Avancé");
+            Scene scene = new Scene(fxmlLoader.load());
+            stage.setTitle("SGPA - Systeme de Gestion de Pharmacie Avance");
             stage.setScene(scene);
-            stage.setX(bounds.getMinX());
-            stage.setY(bounds.getMinY());
-            stage.setWidth(bounds.getWidth());
-            stage.setHeight(bounds.getHeight());
             stage.setMaximized(true);
-
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erreur lors de l'ouverture de l'application principale", e);
         }
     }
 

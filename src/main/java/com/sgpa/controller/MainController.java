@@ -8,11 +8,15 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import com.sgpa.util.SessionManager;
+import com.sgpa.model.Role;
 import com.sgpa.model.Utilisateur;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class MainController {
+    private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 
     @FXML
     private BorderPane contentArea;
@@ -77,7 +81,7 @@ public class MainController {
             stage.setTitle("Connexion - SGPA");
             stage.setMaximized(true);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erreur de navigation", e);
         }
     }
 
@@ -88,7 +92,7 @@ public class MainController {
             lblUtilisateur.setText("👤 " + user.getNomComplet());
 
             // Afficher le menu Utilisateurs seulement pour les admins
-            if ("ADMIN".equals(user.getRole())) {
+            if (Role.ADMIN.equals(user.getRole())) {
                 btnUtilisateurs.setVisible(true);
                 btnUtilisateurs.setManaged(true);
                 separatorAdmin.setVisible(true);
@@ -126,7 +130,7 @@ public class MainController {
             javafx.scene.Node view = loader.load();
             contentArea.setCenter(view);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erreur de navigation", e);
         }
     }
 }

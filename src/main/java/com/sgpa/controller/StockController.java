@@ -1,9 +1,11 @@
 package com.sgpa.controller;
 
-import com.sgpa.dao.impl.LotDAOImpl;
 import com.sgpa.model.Lot;
 import com.sgpa.model.Medicament;
 import com.sgpa.service.MedicamentService;
+import com.sgpa.service.StockService;
+
+import java.math.BigDecimal;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -40,7 +42,7 @@ public class StockController {
     private TableColumn<Lot, Double> colPrixAchat;
 
     private MedicamentService medicamentService = new MedicamentService();
-    private LotDAOImpl lotDAO = new LotDAOImpl();
+    private StockService stockService = new StockService();
     private ObservableList<Lot> lots = FXCollections.observableArrayList();
 
     @FXML
@@ -82,7 +84,8 @@ public class StockController {
         colDatePerem.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().getDatePeremption().toString()));
         colPrixAchat.setCellValueFactory(
-                cellData -> new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getPrixAchat())
+                cellData -> new javafx.beans.property.SimpleDoubleProperty(
+                        cellData.getValue().getPrixAchat() != null ? cellData.getValue().getPrixAchat().doubleValue() : 0)
                         .asObject());
 
         chargerTousLesLots();
@@ -100,7 +103,7 @@ public class StockController {
             String numeroLot = txtNumeroLot.getText();
             int quantite = Integer.parseInt(txtQuantite.getText());
             LocalDate datePeremption = dpDatePeremption.getValue();
-            double prixAchat = Double.parseDouble(txtPrixAchat.getText());
+            BigDecimal prixAchat = new BigDecimal(txtPrixAchat.getText());
 
             if (numeroLot.isEmpty() || datePeremption == null) {
                 showAlert("Erreur", "Veuillez remplir tous les champs.", Alert.AlertType.WARNING);
@@ -108,7 +111,7 @@ public class StockController {
             }
 
             Lot lot = new Lot(medicament.getId(), numeroLot, quantite, datePeremption, prixAchat);
-            lotDAO.create(lot);
+            stockService.ajouterLot(lot);
 
             showAlert("Succès", "Lot ajouté avec succès !", Alert.AlertType.INFORMATION);
             viderChamps();
@@ -130,7 +133,7 @@ public class StockController {
 
     private void chargerTousLesLots() {
         lots.clear();
-        lots.addAll(lotDAO.findAll());
+        lots.addAll(stockService.getAllLots());
         tableLots.setItems(lots);
     }
 

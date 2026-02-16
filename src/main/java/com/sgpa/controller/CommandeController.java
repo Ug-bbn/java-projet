@@ -54,7 +54,7 @@ public class CommandeController {
         colDate.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().getDateCommande().toString()));
         colStatut.setCellValueFactory(
-                cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getStatut()));
+                cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getStatut().getLabel()));
 
         chargerCommandes();
     }

@@ -1,14 +1,12 @@
 package com.sgpa.controller;
 
-import com.sgpa.dao.UtilisateurDAO;
-import com.sgpa.dao.impl.UtilisateurDAOImpl;
+import com.sgpa.model.Role;
 import com.sgpa.model.Utilisateur;
-import com.sgpa.service.AuthentificationService;
+import com.sgpa.service.UtilisateurService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDateTime;
 
@@ -29,28 +27,30 @@ public class UtilisateurController {
     @FXML private ComboBox<String> cmbRole;
     @FXML private Label lblMessage;
 
-    private UtilisateurDAO utilisateurDAO = new UtilisateurDAOImpl();
-    private AuthentificationService authService = new AuthentificationService();
+    private UtilisateurService utilisateurService = new UtilisateurService();
     private ObservableList<Utilisateur> utilisateurs = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        // Configuration des colonnes du tableau
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenom"));
-        colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        colDateCreation.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
+        colId.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getId()).asObject());
+        colUsername.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getUsername()));
+        colNom.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNom()));
+        colPrenom.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getPrenom()));
+        colRole.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleStringProperty(
+                        cellData.getValue().getRole() != null ? cellData.getValue().getRole().getLabel() : "USER"));
+        colDateCreation.setCellValueFactory(
+                cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().getDateCreation()));
 
-        // Remplir le ComboBox des rôles
         cmbRole.setItems(FXCollections.observableArrayList("USER", "ADMIN"));
         cmbRole.setValue("USER");
 
-        // Charger les utilisateurs
         loadUtilisateurs();
 
-        // Sélection dans le tableau
         tableUtilisateurs.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
@@ -62,16 +62,16 @@ public class UtilisateurController {
 
     private void loadUtilisateurs() {
         utilisateurs.clear();
-        utilisateurs.addAll(utilisateurDAO.findAll());
+        utilisateurs.addAll(utilisateurService.getAllUtilisateurs());
         tableUtilisateurs.setItems(utilisateurs);
     }
 
     private void fillFormWithUtilisateur(Utilisateur utilisateur) {
         txtUsername.setText(utilisateur.getUsername());
-        txtPassword.clear(); // Ne pas afficher le mot de passe
+        txtPassword.clear();
         txtNom.setText(utilisateur.getNom());
         txtPrenom.setText(utilisateur.getPrenom());
-        cmbRole.setValue(utilisateur.getRole());
+        cmbRole.setValue(utilisateur.getRole() != null ? utilisateur.getRole().getLabel() : "USER");
     }
 
     @FXML
@@ -86,19 +86,19 @@ public class UtilisateurController {
         String prenom = txtPrenom.getText().trim();
         String role = cmbRole.getValue();
 
-        if (utilisateurDAO.usernameExists(username)) {
-            showError("Ce nom d'utilisateur existe déjà.");
+        if (utilisateurService.usernameExists(username)) {
+            showError("Ce nom d'utilisateur existe deja.");
             return;
         }
 
-        boolean success = authService.register(username, password, nom, prenom, role);
-        
+        boolean success = utilisateurService.createUtilisateur(username, password, nom, prenom, role);
+
         if (success) {
-            showSuccess("Utilisateur créé avec succès !");
+            showSuccess("Utilisateur cree avec succes !");
             loadUtilisateurs();
             handleClear();
         } else {
-            showError("Erreur lors de la création de l'utilisateur.");
+            showError("Erreur lors de la creation de l'utilisateur.");
         }
     }
 
@@ -106,7 +106,7 @@ public class UtilisateurController {
     private void handleUpdate() {
         Utilisateur selected = tableUtilisateurs.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showError("Veuillez sélectionner un utilisateur à modifier.");
+            showError("Veuillez selectionner un utilisateur a modifier.");
             return;
         }
 
@@ -117,17 +117,12 @@ public class UtilisateurController {
         selected.setUsername(txtUsername.getText().trim());
         selected.setNom(txtNom.getText().trim());
         selected.setPrenom(txtPrenom.getText().trim());
-        selected.setRole(cmbRole.getValue());
+        selected.setRole(Role.fromString(cmbRole.getValue()));
 
-        // Mettre à jour le mot de passe seulement s'il est renseigné
         String password = txtPassword.getText();
-        if (!password.isEmpty()) {
-            String hashedPassword = authService.hashPassword(password);
-            selected.setPasswordHash(hashedPassword);
-        }
+        utilisateurService.updateUtilisateur(selected, password.isEmpty() ? null : password);
 
-        utilisateurDAO.update(selected);
-        showSuccess("Utilisateur modifié avec succès !");
+        showSuccess("Utilisateur modifie avec succes !");
         loadUtilisateurs();
         handleClear();
     }
@@ -136,21 +131,21 @@ public class UtilisateurController {
     private void handleDelete() {
         Utilisateur selected = tableUtilisateurs.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showError("Veuillez sélectionner un utilisateur à supprimer.");
+            showError("Veuillez selectionner un utilisateur a supprimer.");
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation");
         alert.setHeaderText("Supprimer l'utilisateur");
-        alert.setContentText("Êtes-vous sûr de vouloir supprimer l'utilisateur " + selected.getUsername() + " ?");
+        alert.setContentText("Etes-vous sur de vouloir supprimer l'utilisateur " + selected.getUsername() + " ?");
 
-        if (alert.showAndWait().get() == ButtonType.OK) {
-            utilisateurDAO.delete(selected.getId());
-            showSuccess("Utilisateur supprimé avec succès !");
+        alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
+            utilisateurService.deleteUtilisateur(selected.getId());
+            showSuccess("Utilisateur supprime avec succes !");
             loadUtilisateurs();
             handleClear();
-        }
+        });
     }
 
     @FXML
@@ -165,21 +160,20 @@ public class UtilisateurController {
     }
 
     private boolean validateForm() {
-        if (txtUsername.getText().trim().isEmpty() || 
-            txtNom.getText().trim().isEmpty() || 
+        if (txtUsername.getText().trim().isEmpty() ||
+            txtNom.getText().trim().isEmpty() ||
             txtPrenom.getText().trim().isEmpty()) {
             showError("Veuillez remplir tous les champs obligatoires.");
             return false;
         }
 
-        // Vérifier le mot de passe seulement pour la création
         if (tableUtilisateurs.getSelectionModel().getSelectedItem() == null) {
             if (txtPassword.getText().isEmpty()) {
-                showError("Le mot de passe est obligatoire pour créer un utilisateur.");
+                showError("Le mot de passe est obligatoire pour creer un utilisateur.");
                 return false;
             }
             if (txtPassword.getText().length() < 4) {
-                showError("Le mot de passe doit contenir au moins 4 caractères.");
+                showError("Le mot de passe doit contenir au moins 4 caracteres.");
                 return false;
             }
         }
@@ -188,13 +182,13 @@ public class UtilisateurController {
     }
 
     private void showError(String message) {
-        lblMessage.setText("❌ " + message);
+        lblMessage.setText(message);
         lblMessage.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
         lblMessage.setVisible(true);
     }
 
     private void showSuccess(String message) {
-        lblMessage.setText("✅ " + message);
+        lblMessage.setText(message);
         lblMessage.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
         lblMessage.setVisible(true);
     }

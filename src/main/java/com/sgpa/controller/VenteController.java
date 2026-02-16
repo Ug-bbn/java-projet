@@ -90,7 +90,8 @@ public class VenteController {
         colDate.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().getDateVente().toString()));
         colTotal.setCellValueFactory(
-                cellData -> new javafx.beans.property.SimpleDoubleProperty(cellData.getValue().getTotalVente())
+                cellData -> new javafx.beans.property.SimpleDoubleProperty(
+                        cellData.getValue().getTotalVente() != null ? cellData.getValue().getTotalVente().doubleValue() : 0)
                         .asObject());
         colOrdonnance.setCellValueFactory(
                 cellData -> new javafx.beans.property.SimpleBooleanProperty(cellData.getValue().isSurOrdonnance())

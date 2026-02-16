@@ -8,3 +8,5 @@ database.properties
 *.jar
 *.log
 .DS_Store
+*.pdf
+CLAUDE.md
