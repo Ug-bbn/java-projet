@@ -1,0 +1,245 @@
+@import url("theme/standard/theme.css");
+
+/* Override or extend AtlantaFX variables if needed */
+.root {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+    -fx-pref-width: 260px;
+    -fx-background-color: -color-bg-default;
+    /* Was sidebar-color */
+    -fx-background-radius: 16px 0 0 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 0);
+    -fx-border-color: -color-border-subtle;
+    -fx-border-width: 0 1px 0 0;
+}
+
+.sidebar-tab {
+    -fx-background-color: transparent;
+    -fx-padding: 14px 24px;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 0 4px;
+    -fx-cursor: hand;
+}
+
+.sidebar-tab:hover {
+    -fx-background-color: -color-bg-subtle;
+}
+
+.sidebar-tab.selected {
+    -fx-background-color: -color-accent-subtle;
+    -fx-border-color: -color-accent-emphasis;
+}
+
+.sidebar-tab Label {
+    -fx-text-fill: -color-fg-muted;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-tab.selected Label {
+    -fx-text-fill: -color-accent-emphasis;
+}
+
+.sidebar-tab .icon {
+    -fx-fill: -color-fg-muted;
+}
+
+.sidebar-tab.selected .icon {
+    -fx-fill: -color-accent-emphasis;
+}
+
+.logo {
+    -fx-text-fill: -color-accent-emphasis;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-padding: 20px;
+}
+
+/* === TITRES === */
+.section-title,
+.view-title {
+    -fx-text-fill: -color-fg-default;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 20px 0;
+}
+
+/* === CONTENT AREA === */
+.background {
+    -fx-background-color: -color-bg-subtle;
+    /* Was bg-color */
+    -fx-background-radius: 0 16px 16px 0;
+}
+
+/* === TOP BAR === */
+.top-bar-icon {
+    -fx-padding: 8px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.top-bar-icon:hover {
+    -fx-background-color: -color-bg-subtle;
+}
+
+.top-bar-icon SVGPath {
+    -fx-fill: -color-fg-muted;
+}
+
+.top-bar-icon:hover SVGPath {
+    -fx-fill: -color-fg-default;
+}
+
+/* === CARDS === */
+.card,
+.dashboard-card,
+.menu-tab,
+.details-panel {
+    -fx-background-color: -color-bg-default;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 8, 0, 0, 2);
+    -fx-padding: 24px;
+    /* Increased padding as requested */
+    -fx-border-color: -color-border-subtle;
+    -fx-border-width: 1px;
+}
+
+/* === DASHBOARD CARDS === */
+.dashboard-card {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.card-title {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-fg-muted;
+}
+
+.card-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-fg-default;
+}
+
+.card-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-success-emphasis;
+    /* Default positive trend */
+}
+
+/* Custom dashboard colors using AtlantaFX vars or custom logic */
+/* For "Card Blue", "Card Red" etc, we can use borders or accents instead of full backgrounds to be more "SaaS" / "Flat" */
+.card-blue {
+    -fx-border-color: transparent transparent transparent -color-accent-emphasis;
+    -fx-border-width: 0 0 0 4px;
+}
+
+.card-red {
+    -fx-border-color: transparent transparent transparent -color-danger-emphasis;
+    -fx-border-width: 0 0 0 4px;
+}
+
+.card-green {
+    -fx-border-color: transparent transparent transparent -color-success-emphasis;
+    -fx-border-width: 0 0 0 4px;
+}
+
+.card-orange {
+    -fx-border-color: transparent transparent transparent -color-warning-emphasis;
+    -fx-border-width: 0 0 0 4px;
+}
+
+/* === CHARTS === */
+.chart-bar {
+    -fx-bar-fill: -color-accent-emphasis;
+    /* Blue bars */
+}
+
+/* === TABLES === */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-font-size: 14px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: transparent;
+    -fx-border-color: -color-border-subtle;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+    -fx-padding: 12px 5px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -color-fg-muted;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-padding: 12px 0;
+    -fx-border-color: -color-border-muted;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -color-accent-subtle;
+    -fx-table-cell-border-color: transparent;
+}
+
+/* === BADGES === */
+.badge-success {
+    -fx-background-color: -color-success-subtle;
+    -fx-text-fill: -color-success-fg;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.badge-warning {
+    -fx-background-color: -color-warning-subtle;
+    -fx-text-fill: -color-warning-fg;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.badge-danger {
+    -fx-background-color: -color-danger-subtle;
+    -fx-text-fill: -color-danger-fg;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 8px;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+/* === FORMS === */
+.text-field,
+.password-field,
+.text-area {
+    /* AtlantaFX handles this mostly, just overriding padding */
+    -fx-padding: 10px;
+}
+
+.button-success {
+    -fx-background-color: -color-success-emphasis;
+    -fx-text-fill: -color-fg-emphasis;
+}
+
+.button-danger {
+    -fx-background-color: -color-danger-emphasis;
+    -fx-text-fill: -color-fg-emphasis;
+}
+
+.button-primary {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: -color-fg-emphasis;
+}

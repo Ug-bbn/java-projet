@@ -12,6 +12,8 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,15 +22,31 @@ import java.util.List;
 
 public class DashboardController {
 
-    @FXML private Label lblTotalMedicaments;
-    @FXML private Label lblAlertesStock;
-    @FXML private Label lblVentesDuJour;
-    @FXML private Label lblCommandesEnAttente;
+    @FXML
+    private Label lblTotalMedicaments;
+    @FXML
+    private Label lblAlertesStock;
+    @FXML
+    private Label lblVentesDuJour;
+    @FXML
+    private Label lblCommandesEnAttente;
 
-    @FXML private BarChart<String, Number> chartVentesSemaine;
-    @FXML private PieChart chartRepartitionStock;
-    @FXML private ListView<String> listDernieresVentes;
-    @FXML private ListView<String> listAlertes;
+    @FXML
+    private BarChart<String, Number> chartVentesSemaine;
+    @FXML
+    private PieChart chartRepartitionStock;
+
+    @FXML
+    private TableView<Vente> tableDernieresVentes;
+    @FXML
+    private TableColumn<Vente, Integer> colVenteId;
+    @FXML
+    private TableColumn<Vente, String> colVenteHeure;
+    @FXML
+    private TableColumn<Vente, String> colVenteMontant;
+
+    @FXML
+    private ListView<AlerteItem> listAlertes;
 
     private DashboardService dashboardService;
 
@@ -38,7 +56,73 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
+        setupTables();
+        setupAlertsList();
+        setupChart();
         refreshData();
+    }
+
+    private void setupTables() {
+        colVenteId
+                .setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
+
+        colVenteHeure.setCellValueFactory(cell -> {
+            return new javafx.beans.property.SimpleStringProperty(
+                    cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("HH:mm")));
+        });
+
+        colVenteMontant.setCellValueFactory(cell -> {
+            return new javafx.beans.property.SimpleStringProperty(
+                    cell.getValue().getTotalVente().toPlainString() + " €");
+        });
+    }
+
+    private void setupAlertsList() {
+        listAlertes.setCellFactory(lv -> new javafx.scene.control.ListCell<AlerteItem>() {
+            @Override
+            protected void updateItem(AlerteItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    Label label = new Label(item.message);
+                    // Unicode icons or load SVG paths. Using emojis for simplicity as requested
+                    // "icône d'avertissement"
+                    // User suggested ⚠️.
+                    if (item.isCritical) {
+                        label.setGraphic(new Label("⚠️"));
+                        label.getGraphic().setStyle("-fx-text-fill: -color-danger-fg;");
+                        label.setStyle("-fx-text-fill: -color-danger-fg;");
+                    } else {
+                        label.setGraphic(new Label("⚠️"));
+                        label.getGraphic().setStyle("-fx-text-fill: -color-warning-fg;");
+                        label.setStyle("-fx-text-fill: -color-fg-default;");
+                    }
+                    setGraphic(label);
+                }
+            }
+        });
+    }
+
+    private void setupChart() {
+        // Fix Y-Axis formatting to remove "k" for small numbers if needed,
+        // essentially just letting it bear normal numbers or currency.
+        // Assuming the axis is NumberAxis from FXML.
+        if (chartVentesSemaine.getYAxis() instanceof javafx.scene.chart.NumberAxis) {
+            javafx.scene.chart.NumberAxis yAxis = (javafx.scene.chart.NumberAxis) chartVentesSemaine.getYAxis();
+            yAxis.setTickLabelFormatter(new javafx.util.StringConverter<Number>() {
+                @Override
+                public String toString(Number object) {
+                    return String.format("%.0f €", object.doubleValue());
+                }
+
+                @Override
+                public Number fromString(String string) {
+                    return 0;
+                }
+            });
+        }
     }
 
     public void refreshData() {
@@ -52,7 +136,7 @@ public class DashboardController {
         lblAlertesStock.setText(String.valueOf(dashboardService.getAlertesStockCount()));
 
         BigDecimal ventesJour = dashboardService.getVentesDuJour();
-        lblVentesDuJour.setText(ventesJour.toPlainString() + " EUR");
+        lblVentesDuJour.setText(ventesJour.toPlainString() + " €");
 
         lblCommandesEnAttente.setText(String.valueOf(dashboardService.getCommandesEnAttente()));
     }
@@ -60,7 +144,7 @@ public class DashboardController {
     private void updateCharts() {
         chartVentesSemaine.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Ventes (EUR)");
+        series.setName("Ventes");
 
         List<Vente> ventes = dashboardService.getVenteService().getHistoriqueVentes();
         LocalDate today = LocalDate.now();
@@ -90,26 +174,32 @@ public class DashboardController {
     }
 
     private void updateLists() {
-        listDernieresVentes.getItems().clear();
+        // Update Table
         List<Vente> ventes = dashboardService.getVenteService().getHistoriqueVentes();
         ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
+        tableDernieresVentes.setItems(FXCollections.observableArrayList(ventes.stream().limit(10).toList()));
 
-        ventes.stream().limit(10).forEach(v -> {
-            String label = String.format("Vente #%d - %s EUR - %s",
-                    v.getId(), v.getTotalVente().toPlainString(),
-                    v.getDateVente().format(DateTimeFormatter.ofPattern("HH:mm")));
-            listDernieresVentes.getItems().add(label);
-        });
-
+        // Update Alerts
         listAlertes.getItems().clear();
         List<Medicament> alertesStock = dashboardService.getMedicamentService().getMedicamentsEnAlerteStock();
-        alertesStock.forEach(m -> listAlertes.getItems().add("Stock faible: " + m.getNomCommercial()));
+        alertesStock.forEach(m -> listAlertes.getItems().add(new AlerteItem(m.getNomCommercial(), false)));
 
         List<Lot> alertesPeremption = dashboardService.getMedicamentService().getLotsProchesPeremption();
         alertesPeremption.forEach(l -> {
             Medicament m = dashboardService.getMedicamentService().getMedicamentById(l.getMedicamentId());
             String nom = (m != null) ? m.getNomCommercial() : "Lot " + l.getNumeroLot();
-            listAlertes.getItems().add("Peremption proche: " + nom + " (" + l.getDatePeremption() + ")");
+            listAlertes.getItems().add(new AlerteItem(nom + " (Péremption)", true));
         });
+    }
+
+    // Simple record for Alerts
+    private static class AlerteItem {
+        String message;
+        boolean isCritical;
+
+        public AlerteItem(String message, boolean isCritical) {
+            this.message = message;
+            this.isCritical = isCritical;
+        }
     }
 }

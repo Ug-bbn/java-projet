@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +20,10 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "INSERT INTO commandes (fournisseur_id, date_commande, statut) VALUES (?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, cmd.getFournisseurId());
-            stmt.setString(2, cmd.getDateCommande().toString());
+            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDateCommande()));
             stmt.setString(3, cmd.getStatut().getLabel());
 
             stmt.executeUpdate();
@@ -43,7 +42,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "SELECT * FROM commandes WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -63,8 +62,8 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "SELECT * FROM commandes";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 liste.add(extractCommande(rs));
@@ -80,10 +79,10 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "UPDATE commandes SET fournisseur_id=?, date_commande=?, statut=? WHERE id=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, cmd.getFournisseurId());
-            stmt.setString(2, cmd.getDateCommande().toString());
+            stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDateCommande()));
             stmt.setString(3, cmd.getStatut().getLabel());
             stmt.setInt(4, cmd.getId());
 
@@ -98,7 +97,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "DELETE FROM commandes WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -112,7 +111,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "INSERT INTO lignes_commande (commande_id, medicament_id, quantite, prix_unitaire) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, commandeId);
             stmt.setInt(2, ligne.getMedicamentId());
@@ -131,7 +130,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         String sql = "SELECT * FROM lignes_commande WHERE commande_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, commandeId);
             ResultSet rs = stmt.executeQuery();
@@ -155,7 +154,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         Commande cmd = new Commande();
         cmd.setId(rs.getInt("id"));
         cmd.setFournisseurId(rs.getInt("fournisseur_id"));
-        cmd.setDateCommande(LocalDateTime.parse(rs.getString("date_commande")));
+        cmd.setDateCommande(rs.getTimestamp("date_commande").toLocalDateTime());
         cmd.setStatut(StatutCommande.fromString(rs.getString("statut")));
         return cmd;
     }

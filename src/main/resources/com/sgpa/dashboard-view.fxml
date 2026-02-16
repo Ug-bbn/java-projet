@@ -8,6 +8,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -22,11 +24,7 @@
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <children>
-                <Label text="Tableau de Bord" styleClass="view-title">
-                    <font>
-                        <Font name="System Bold" size="24.0" />
-                    </font>
-                </Label>
+                <Label text="Tableau de bord" styleClass="view-title"/>
                 
                 <!-- KPI CARDS using GridPane for responsive layout -->
                 <GridPane hgap="20.0" vgap="20.0">
@@ -110,13 +108,22 @@
                         <VBox styleClass="list-container" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label text="Dernières Ventes" styleClass="section-title" />
-                                <ListView fx:id="listDernieresVentes" VBox.vgrow="ALWAYS" />
+                                <TableView fx:id="tableDernieresVentes" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colVenteId" text="ID" prefWidth="50.0" />
+                                        <TableColumn fx:id="colVenteHeure" text="Heure" prefWidth="80.0" />
+                                        <TableColumn fx:id="colVenteMontant" text="Montant" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;"/>
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                </TableView>
                             </children>
                         </VBox>
                         
                         <VBox styleClass="list-container" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Alertes Récents" styleClass="section-title" />
+                                <Label text="Alertes Récentes" styleClass="section-title" />
                                 <ListView fx:id="listAlertes" VBox.vgrow="ALWAYS" />
                             </children>
                         </VBox>

@@ -93,6 +93,10 @@ public class CommandeService {
         return commandeDAO.findAll();
     }
 
+    public List<LigneCommande> getLignesCommande(int commandeId) {
+        return commandeDAO.getLignesCommande(commandeId);
+    }
+
     public void ajouterFournisseur(Fournisseur fournisseur) {
         fournisseurDAO.create(fournisseur);
         logger.info("Fournisseur {} ajoute", fournisseur.getNom());

@@ -9,11 +9,7 @@
       fx:controller="com.sgpa.controller.StockController" spacing="15">
     
     <HBox alignment="CENTER_LEFT" spacing="15">
-        <Label text="📦 Gestion du Stock" styleClass="section-title">
-            <font>
-                <Font name="System Bold" size="20"/>
-            </font>
-        </Label>
+        <Label text="Stock" styleClass="section-title"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="🔄 Actualiser" onAction="#handleActualiser" styleClass="button"/>
     </HBox>

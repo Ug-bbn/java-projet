@@ -12,7 +12,7 @@
     </padding>
     
     <!-- Titre -->
-    <Label text="Gestion des Utilisateurs" styleClass="section-title"/>
+    <Label text="Utilisateurs" styleClass="section-title"/>
     
     <!-- Tableau des utilisateurs -->
     <TableView fx:id="tableUtilisateurs" VBox.vgrow="ALWAYS">

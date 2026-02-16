@@ -491,7 +491,8 @@ StackPane {
 }
 
 /* Charts & Lists Containers */
-.chart-container, .list-container {
+.chart-container,
+.list-container {
     -fx-background-color: white;
     -fx-background-radius: 12px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 0, 4);
@@ -593,4 +594,34 @@ StackPane {
 .success-label {
     -fx-text-fill: #27ae60;
     -fx-font-weight: bold;
+}
+
+/* === TITLED PANE (Collapsible sections) === */
+.titled-pane {
+    -fx-text-fill: #34495E;
+}
+
+.titled-pane>.title {
+    -fx-background-color: #F0F2F5;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 15px;
+    -fx-border-color: #E0E6ED;
+    -fx-border-radius: 8px;
+}
+
+.titled-pane>.title:hover {
+    -fx-background-color: #E8F4FD;
+}
+
+.titled-pane>.title>.arrow-button .arrow {
+    -fx-background-color: #667eea;
+}
+
+.titled-pane>*.content {
+    -fx-background-color: white;
+    -fx-border-color: #E0E6ED;
+    -fx-border-width: 0 1px 1px 1px;
+    -fx-border-radius: 0 0 8px 8px;
+    -fx-background-radius: 0 0 8px 8px;
+    -fx-padding: 15px;
 }
