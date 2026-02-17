@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class CommandeController {
@@ -281,12 +282,159 @@ public class CommandeController {
         chargerMedicaments();
     }
 
+    @FXML
+    private void handleRecevoirCommande() {
+        Commande selected = tableCommandes.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Erreur", "Veuillez s\u00e9lectionner une commande.", Alert.AlertType.WARNING);
+            return;
+        }
+        if (com.sgpa.model.StatutCommande.RECUE.equals(selected.getStatut())) {
+            showAlert("Information", "Cette commande a d\u00e9j\u00e0 \u00e9t\u00e9 re\u00e7ue.", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        // Dialog to input lot number and expiry date
+        Dialog<javafx.util.Pair<String, LocalDate>> dialog = new Dialog<>();
+        dialog.setTitle("R\u00e9ception de commande");
+        dialog.setHeaderText("Commande #" + selected.getId() + " - Saisir les informations du lot");
+
+        ButtonType btnValider = new ButtonType("Valider", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnValider, ButtonType.CANCEL);
+
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        TextField txtNumeroLot = new TextField();
+        txtNumeroLot.setPromptText("Ex: LOT-2026-001");
+        DatePicker dpPeremption = new DatePicker(LocalDate.now().plusYears(1));
+
+        grid.add(new Label("Num\u00e9ro de lot:"), 0, 0);
+        grid.add(txtNumeroLot, 1, 0);
+        grid.add(new Label("Date de p\u00e9remption:"), 0, 1);
+        grid.add(dpPeremption, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        txtNumeroLot.requestFocus();
+
+        dialog.setResultConverter(btn -> {
+            if (btn == btnValider) {
+                return new javafx.util.Pair<>(txtNumeroLot.getText().trim(), dpPeremption.getValue());
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(result -> {
+            String numeroLot = result.getKey();
+            LocalDate datePeremption = result.getValue();
+
+            if (numeroLot.isEmpty()) {
+                showAlert("Erreur", "Le num\u00e9ro de lot est obligatoire.", Alert.AlertType.WARNING);
+                return;
+            }
+            if (datePeremption == null || datePeremption.isBefore(LocalDate.now())) {
+                showAlert("Erreur", "La date de p\u00e9remption doit \u00eatre dans le futur.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            try {
+                commandeService.recevoirCommande(selected.getId(), numeroLot, datePeremption);
+                showAlert("Succ\u00e8s", "Commande #" + selected.getId() + " r\u00e9ceptionn\u00e9e avec succ\u00e8s !\nLots cr\u00e9\u00e9s et stock mis \u00e0 jour.", Alert.AlertType.INFORMATION);
+                chargerCommandes();
+            } catch (Exception e) {
+                showAlert("Erreur", "Erreur lors de la r\u00e9ception : " + e.getMessage(), Alert.AlertType.ERROR);
+            }
+        });
+    }
+
+    @FXML
+    private void handleModifierFournisseur() {
+        Fournisseur selected = cmbFournisseur.getValue();
+        if (selected == null) {
+            showAlert("Erreur", "Veuillez s\u00e9lectionner un fournisseur \u00e0 modifier.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Dialog<Fournisseur> dialog = new Dialog<>();
+        dialog.setTitle("Modifier Fournisseur");
+        dialog.setHeaderText("Modifier : " + selected.getNom());
+
+        ButtonType btnValider = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(btnValider, ButtonType.CANCEL);
+
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        TextField txtNom = new TextField(selected.getNom());
+        TextField txtContact = new TextField(selected.getContact());
+        TextField txtAdresse = new TextField(selected.getAdresse());
+
+        grid.add(new Label("Nom:"), 0, 0);
+        grid.add(txtNom, 1, 0);
+        grid.add(new Label("Contact:"), 0, 1);
+        grid.add(txtContact, 1, 1);
+        grid.add(new Label("Adresse:"), 0, 2);
+        grid.add(txtAdresse, 1, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == btnValider) {
+                selected.setNom(txtNom.getText().trim());
+                selected.setContact(txtContact.getText().trim());
+                selected.setAdresse(txtAdresse.getText().trim());
+                return selected;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(f -> {
+            if (f.getNom().isEmpty()) {
+                showAlert("Erreur", "Le nom du fournisseur est obligatoire.", Alert.AlertType.WARNING);
+                return;
+            }
+            commandeService.modifierFournisseur(f);
+            showAlert("Succ\u00e8s", "Fournisseur modifi\u00e9 avec succ\u00e8s.", Alert.AlertType.INFORMATION);
+            chargerFournisseurs();
+        });
+    }
+
+    @FXML
+    private void handleSupprimerFournisseur() {
+        Fournisseur selected = cmbFournisseur.getValue();
+        if (selected == null) {
+            showAlert("Erreur", "Veuillez s\u00e9lectionner un fournisseur \u00e0 supprimer.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText("Supprimer le fournisseur ?");
+        confirm.setContentText("Voulez-vous vraiment supprimer \"" + selected.getNom() + "\" ?");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                commandeService.supprimerFournisseur(selected.getId());
+                showAlert("Succ\u00e8s", "Fournisseur supprim\u00e9.", Alert.AlertType.INFORMATION);
+                cmbFournisseur.setValue(null);
+                chargerFournisseurs();
+            }
+        });
+    }
+
     // ========================================================
     // PRIVATE HELPERS
     // ========================================================
 
     private void chargerFournisseurs() {
-        fournisseurCache = commandeService.getAllFournisseurs();
+        java.util.Set<String> seen = new java.util.LinkedHashSet<>();
+        fournisseurCache = commandeService.getAllFournisseurs().stream()
+                .filter(f -> seen.add(f.getNom()))
+                .collect(java.util.stream.Collectors.toList());
         ObservableList<Fournisseur> list = FXCollections.observableArrayList(fournisseurCache);
         cmbFournisseur.setItems(list);
 

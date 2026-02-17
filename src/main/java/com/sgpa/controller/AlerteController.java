@@ -9,6 +9,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class AlerteController {
 
     @FXML private TableView<Medicament> tableStockMin;
@@ -50,18 +54,24 @@ public class AlerteController {
     }
 
     private void chargerAlertes() {
-        // Alertes stock minimum
+        // Alertes stock minimum - dédupliquer par ID médicament
+        java.util.List<Medicament> allAlertes = service.getMedicamentsEnAlerteStock();
+        Set<Integer> seenIds = new HashSet<>();
         ObservableList<Medicament> alertesStock = FXCollections.observableArrayList(
-            service.getMedicamentsEnAlerteStock()
+            allAlertes.stream()
+                .filter(m -> seenIds.add(m.getId()))
+                .collect(Collectors.toList())
         );
         tableStockMin.setItems(alertesStock);
 
         // Alertes péremption
         ObservableList<LotPeremption> alertesPerem = FXCollections.observableArrayList();
         for (Lot lot : service.getLotsProchesPeremption()) {
-            Medicament med = service.getMedicamentById(lot.getMedicamentId());
+            String nom = (lot.getNomMedicament() != null && !lot.getNomMedicament().isEmpty())
+                    ? lot.getNomMedicament()
+                    : "?";
             alertesPerem.add(new LotPeremption(
-                med != null ? med.getNomCommercial() : "?",
+                nom,
                 lot.getNumeroLot(),
                 lot.getQuantiteStock(),
                 lot.getDatePeremption().toString()

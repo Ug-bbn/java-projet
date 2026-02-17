@@ -46,7 +46,9 @@ public class DashboardController {
     private TableColumn<Vente, String> colVenteMontant;
 
     @FXML
-    private ListView<AlerteItem> listAlertes;
+    private ListView<AlerteItem> listStockEpuise;
+    @FXML
+    private ListView<AlerteItem> listMedicamentsPerimes;
 
     private DashboardService dashboardService;
 
@@ -68,7 +70,7 @@ public class DashboardController {
 
         colVenteHeure.setCellValueFactory(cell -> {
             return new javafx.beans.property.SimpleStringProperty(
-                    cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("HH:mm")));
+                    cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")));
         });
 
         colVenteMontant.setCellValueFactory(cell -> {
@@ -78,7 +80,8 @@ public class DashboardController {
     }
 
     private void setupAlertsList() {
-        listAlertes.setCellFactory(lv -> new javafx.scene.control.ListCell<AlerteItem>() {
+        javafx.util.Callback<ListView<AlerteItem>, javafx.scene.control.ListCell<AlerteItem>> cellFactory =
+                lv -> new javafx.scene.control.ListCell<AlerteItem>() {
             @Override
             protected void updateItem(AlerteItem item, boolean empty) {
                 super.updateItem(item, empty);
@@ -87,9 +90,6 @@ public class DashboardController {
                     setGraphic(null);
                 } else {
                     Label label = new Label(item.message);
-                    // Unicode icons or load SVG paths. Using emojis for simplicity as requested
-                    // "icône d'avertissement"
-                    // User suggested ⚠️.
                     if (item.isCritical) {
                         label.setGraphic(new Label("⚠️"));
                         label.getGraphic().setStyle("-fx-text-fill: -color-danger-fg;");
@@ -102,7 +102,9 @@ public class DashboardController {
                     setGraphic(label);
                 }
             }
-        });
+        };
+        listStockEpuise.setCellFactory(cellFactory);
+        listMedicamentsPerimes.setCellFactory(cellFactory);
     }
 
     private void setupChart() {
@@ -179,16 +181,24 @@ public class DashboardController {
         ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
         tableDernieresVentes.setItems(FXCollections.observableArrayList(ventes.stream().limit(10).toList()));
 
-        // Update Alerts
-        listAlertes.getItems().clear();
+        // Update Alerts - Stock Épuisé
+        listStockEpuise.getItems().clear();
         List<Medicament> alertesStock = dashboardService.getMedicamentService().getMedicamentsEnAlerteStock();
-        alertesStock.forEach(m -> listAlertes.getItems().add(new AlerteItem(m.getNomCommercial(), false)));
+        alertesStock.forEach(m -> {
+            int stock = dashboardService.getMedicamentService().getStockTotal(m.getId());
+            listStockEpuise.getItems().add(new AlerteItem(
+                    m.getNomCommercial() + " - Stock : " + stock + " (seuil : " + m.getSeuilMinAlerte() + ")", false));
+        });
 
+        // Update Alerts - Médicaments Périmés
+        listMedicamentsPerimes.getItems().clear();
         List<Lot> alertesPeremption = dashboardService.getMedicamentService().getLotsProchesPeremption();
         alertesPeremption.forEach(l -> {
-            Medicament m = dashboardService.getMedicamentService().getMedicamentById(l.getMedicamentId());
-            String nom = (m != null) ? m.getNomCommercial() : "Lot " + l.getNumeroLot();
-            listAlertes.getItems().add(new AlerteItem(nom + " (Péremption)", true));
+            String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
+                    ? l.getNomMedicament()
+                    : "Médicament #" + l.getMedicamentId();
+            listMedicamentsPerimes.getItems().add(new AlerteItem(
+                    nom + " — Lot n° " + l.getNumeroLot(), true));
         });
     }
 

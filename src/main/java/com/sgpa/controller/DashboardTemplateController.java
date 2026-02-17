@@ -1,8 +1,11 @@
 package com.sgpa.controller;
 
 import com.sgpa.MainApp;
+import com.sgpa.model.Role;
+import com.sgpa.model.Utilisateur;
 import com.sgpa.util.FXUtil;
 import com.sgpa.util.LocalUserData;
+import com.sgpa.util.SessionManager;
 import com.sgpa.util.Theme;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -78,7 +81,13 @@ public class DashboardTemplateController implements Initializable {
         // 3: Stock
         // 4: Commandes
         // 5: Alertes
-        // 6: Utilisateurs
+        // 6: Utilisateurs (ADMIN only)
+
+        boolean isAdmin = false;
+        Utilisateur user = SessionManager.getInstance().getUtilisateurConnecte();
+        if (user != null && Role.ADMIN.equals(user.getRole())) {
+            isAdmin = true;
+        }
 
         int index = 0;
         if (vbxMenuNavigation.getChildren().size() > index) {
@@ -111,9 +120,15 @@ public class DashboardTemplateController implements Initializable {
             nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/alerte-view.fxml", nav));
         }
 
+        // Utilisateurs: visible only for ADMIN
         if (vbxMenuNavigation.getChildren().size() > index) {
             Node nav = vbxMenuNavigation.getChildren().get(index++);
-            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/utilisateur-view.fxml", nav));
+            if (isAdmin) {
+                nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/utilisateur-view.fxml", nav));
+            } else {
+                nav.setVisible(false);
+                nav.setManaged(false);
+            }
         }
     }
 

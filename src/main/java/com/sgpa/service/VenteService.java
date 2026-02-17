@@ -38,21 +38,24 @@ public class VenteService {
     }
 
     public boolean enregistrerVente(int medicamentId, int quantite, boolean surOrdonnance) {
-        if (quantite <= 0) {
-            logger.warn("Tentative de vente avec une quantite invalide : {}", quantite);
-            return false;
-        }
+        java.util.Map<Integer, Integer> articles = new java.util.LinkedHashMap<>();
+        articles.put(medicamentId, quantite);
+        return enregistrerVenteMulti(articles, surOrdonnance);
+    }
 
-        int stockTotal = lotDAO.getStockTotal(medicamentId);
-        if (stockTotal < quantite) {
-            logger.warn("Stock insuffisant pour le medicament {}. Stock: {}, Demande: {}", medicamentId, stockTotal, quantite);
-            return false;
-        }
-
-        Medicament medicament = medicamentDAO.findById(medicamentId);
-        if (medicament == null) {
-            logger.error("Medicament {} introuvable", medicamentId);
-            return false;
+    public boolean enregistrerVenteMulti(java.util.Map<Integer, Integer> articles, boolean surOrdonnance) {
+        for (var entry : articles.entrySet()) {
+            if (entry.getValue() <= 0) {
+                logger.warn("Quantite invalide pour medicament {}: {}", entry.getKey(), entry.getValue());
+                return false;
+            }
+            int stockTotal = lotDAO.getStockTotal(entry.getKey());
+            if (stockTotal < entry.getValue()) {
+                Medicament med = medicamentDAO.findById(entry.getKey());
+                String nom = med != null ? med.getNomCommercial() : String.valueOf(entry.getKey());
+                logger.warn("Stock insuffisant pour {}. Stock: {}, Demande: {}", nom, stockTotal, entry.getValue());
+                return false;
+            }
         }
 
         try {
@@ -63,29 +66,38 @@ public class VenteService {
                 Vente vente = new Vente(surOrdonnance);
                 BigDecimal montantTotal = BigDecimal.ZERO;
 
-                List<Lot> lots = lotDAO.findByMedicamentIdOrderByDate(medicamentId);
-                int qteRestante = quantite;
+                for (var entry : articles.entrySet()) {
+                    int medicamentId = entry.getKey();
+                    int quantite = entry.getValue();
 
-                for (Lot lot : lots) {
-                    if (qteRestante == 0) break;
+                    Medicament medicament = medicamentDAO.findById(medicamentId);
+                    if (medicament == null) {
+                        throw new IllegalStateException("Medicament " + medicamentId + " introuvable");
+                    }
 
-                    int qteAPrendre = Math.min(qteRestante, lot.getQuantiteStock());
+                    List<Lot> lots = lotDAO.findByMedicamentIdOrderByDate(medicamentId, conn);
+                    int qteRestante = quantite;
 
-                    lot.setQuantiteStock(lot.getQuantiteStock() - qteAPrendre);
-                    lotDAO.update(lot);
+                    for (Lot lot : lots) {
+                        if (qteRestante == 0) break;
 
-                    LigneVente ligne = new LigneVente(lot.getId(), qteAPrendre, medicament.getPrixPublic());
-                    vente.getLignes().add(ligne);
+                        int qteAPrendre = Math.min(qteRestante, lot.getQuantiteStock());
+                        lot.setQuantiteStock(lot.getQuantiteStock() - qteAPrendre);
+                        lotDAO.update(lot, conn);
 
-                    montantTotal = montantTotal.add(ligne.getTotal());
-                    qteRestante -= qteAPrendre;
+                        LigneVente ligne = new LigneVente(lot.getId(), qteAPrendre, medicament.getPrixPublic());
+                        vente.getLignes().add(ligne);
+
+                        montantTotal = montantTotal.add(ligne.getTotal());
+                        qteRestante -= qteAPrendre;
+                    }
                 }
 
                 vente.setTotalVente(montantTotal);
-                venteDAO.create(vente);
+                venteDAO.create(vente, conn);
 
                 for (LigneVente ligne : vente.getLignes()) {
-                    venteDAO.addLigneVente(vente.getId(), ligne);
+                    venteDAO.addLigneVente(vente.getId(), ligne, conn);
                 }
 
                 conn.commit();

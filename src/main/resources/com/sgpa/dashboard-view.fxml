@@ -121,10 +121,20 @@
                             </children>
                         </VBox>
                         
-                        <VBox styleClass="list-container" HBox.hgrow="ALWAYS">
+                        <VBox spacing="15.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Alertes Récentes" styleClass="section-title" />
-                                <ListView fx:id="listAlertes" VBox.vgrow="ALWAYS" />
+                                <VBox styleClass="list-container" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Stock Épuisé" styleClass="section-title" />
+                                        <ListView fx:id="listStockEpuise" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="list-container" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label text="Médicaments Périmés" styleClass="section-title" />
+                                        <ListView fx:id="listMedicamentsPerimes" VBox.vgrow="ALWAYS" />
+                                    </children>
+                                </VBox>
                             </children>
                         </VBox>
                     </children>

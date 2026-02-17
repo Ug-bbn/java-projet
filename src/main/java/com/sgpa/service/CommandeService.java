@@ -46,13 +46,11 @@ public class CommandeService {
     public void recevoirCommande(int commandeId, String numeroLot, LocalDate datePeremption) {
         Commande commande = commandeDAO.findById(commandeId);
         if (commande == null) {
-            logger.warn("Commande {} introuvable", commandeId);
-            return;
+            throw new IllegalArgumentException("Commande " + commandeId + " introuvable");
         }
 
         if (StatutCommande.RECUE.equals(commande.getStatut())) {
-            logger.warn("La commande {} a deja ete recue", commandeId);
-            return;
+            throw new IllegalStateException("La commande " + commandeId + " a deja ete recue");
         }
 
         try {
@@ -60,7 +58,7 @@ public class CommandeService {
             try {
                 conn.setAutoCommit(false);
 
-                List<LigneCommande> lignes = commandeDAO.getLignesCommande(commandeId);
+                List<LigneCommande> lignes = commandeDAO.getLignesCommande(commandeId, conn);
 
                 for (LigneCommande ligne : lignes) {
                     Lot lot = new Lot(
@@ -69,23 +67,25 @@ public class CommandeService {
                             ligne.getQuantite(),
                             datePeremption,
                             ligne.getPrixUnitaire());
-                    lotDAO.create(lot);
+                    lotDAO.create(lot, conn);
                 }
 
                 commande.setStatut(StatutCommande.RECUE);
-                commandeDAO.update(commande);
+                commandeDAO.update(commande, conn);
 
                 conn.commit();
                 logger.info("Commande {} receptionnee avec succes", commandeId);
             } catch (Exception e) {
                 conn.rollback();
                 logger.error("Erreur lors de la reception de la commande {}, rollback effectue", commandeId, e);
+                throw new RuntimeException("Erreur lors de la reception de la commande", e);
             } finally {
                 conn.setAutoCommit(true);
                 conn.close();
             }
         } catch (SQLException e) {
             logger.error("Erreur de connexion lors de la reception de la commande {}", commandeId, e);
+            throw new RuntimeException("Erreur de connexion", e);
         }
     }
 
@@ -104,5 +104,15 @@ public class CommandeService {
 
     public List<Fournisseur> getAllFournisseurs() {
         return fournisseurDAO.findAll();
+    }
+
+    public void modifierFournisseur(Fournisseur fournisseur) {
+        fournisseurDAO.update(fournisseur);
+        logger.info("Fournisseur {} modifie", fournisseur.getNom());
+    }
+
+    public void supprimerFournisseur(int fournisseurId) {
+        fournisseurDAO.delete(fournisseurId);
+        logger.info("Fournisseur {} supprime", fournisseurId);
     }
 }

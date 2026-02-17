@@ -31,6 +31,10 @@
             <VBox spacing="8" HBox.hgrow="NEVER" minWidth="320" prefWidth="320">
                 <Label text="Fournisseur" styleClass="label-bold"/>
                 <ComboBox fx:id="cmbFournisseur" maxWidth="Infinity"/>
+                <HBox spacing="5">
+                    <Button text="Modifier" onAction="#handleModifierFournisseur" styleClass="button"/>
+                    <Button text="Supprimer" onAction="#handleSupprimerFournisseur" styleClass="button-danger"/>
+                </HBox>
             </VBox>
 
             <Separator orientation="VERTICAL"/>
@@ -73,9 +77,13 @@
 
     <!-- ============ LISTE DES COMMANDES ============ -->
     <VBox spacing="8" VBox.vgrow="ALWAYS" styleClass="details-panel">
-        <Label text="📋 Commandes enregistrées" styleClass="label-bold">
-            <font><Font name="System Bold" size="15"/></font>
-        </Label>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Commandes enregistrées" styleClass="label-bold">
+                <font><Font name="System Bold" size="15"/></font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Recevoir Commande" onAction="#handleRecevoirCommande" styleClass="button-success"/>
+        </HBox>
 
         <TableView fx:id="tableCommandes" VBox.vgrow="ALWAYS" prefHeight="250">
             <placeholder><Label text="Aucune commande enregistrée."/></placeholder>

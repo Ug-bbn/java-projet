@@ -5,56 +5,17 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" 
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.StockController" spacing="15">
-    
+
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Label text="Stock" styleClass="section-title"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="🔄 Actualiser" onAction="#handleActualiser" styleClass="button"/>
+        <Button text="Actualiser" onAction="#handleActualiser" styleClass="button"/>
     </HBox>
-    
+
     <Separator/>
-    
-    <!-- Formulaire d'ajout de lot -->
-    <VBox spacing="10" styleClass="details-panel">
-        <Label text="Ajouter un Lot" styleClass="label-bold">
-            <font>
-                <Font name="System Bold" size="14"/>
-            </font>
-        </Label>
-        
-        <GridPane hgap="10" vgap="10">
-            <columnConstraints>
-                <ColumnConstraints minWidth="120" prefWidth="120"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
-                <ColumnConstraints minWidth="120" prefWidth="120"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
-            </columnConstraints>
-            
-            <Label text="Médicament:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-            <ComboBox fx:id="cmbMedicament" GridPane.columnIndex="1" GridPane.rowIndex="0" maxWidth="Infinity"/>
-            
-            <Label text="N° Lot:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-            <TextField fx:id="txtNumeroLot" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-            
-            <Label text="Quantité:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-            <TextField fx:id="txtQuantite" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-            
-            <Label text="Date péremption:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
-            <DatePicker fx:id="dpDatePeremption" GridPane.columnIndex="3" GridPane.rowIndex="1" maxWidth="Infinity"/>
-            
-            <Label text="Prix d'achat (€):" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-            <TextField fx:id="txtPrixAchat" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-        </GridPane>
-        
-        <!-- Boutons -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Button text="Nouveau" onAction="#handleNouveau" styleClass="button"/>
-            <Button text="Ajouter Lot" onAction="#handleAjouterLot" styleClass="button-success"/>
-        </HBox>
-    </VBox>
-    
+
     <!-- Liste des lots -->
     <VBox spacing="10" VBox.vgrow="ALWAYS">
         <Label text="Tous les Lots en Stock" styleClass="label-bold">
@@ -62,7 +23,7 @@
                 <Font name="System Bold" size="14"/>
             </font>
         </Label>
-        
+
         <TableView fx:id="tableLots" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="50"/>

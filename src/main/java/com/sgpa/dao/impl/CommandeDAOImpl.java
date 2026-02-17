@@ -76,11 +76,18 @@ public class CommandeDAOImpl implements CommandeDAO {
 
     @Override
     public void update(Commande cmd) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            update(cmd, conn);
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
+        }
+    }
+
+    @Override
+    public void update(Commande cmd, Connection conn) {
         String sql = "UPDATE commandes SET fournisseur_id=?, date_commande=?, statut=? WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cmd.getFournisseurId());
             stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDateCommande()));
             stmt.setString(3, cmd.getStatut().getLabel());
@@ -89,6 +96,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -126,12 +134,20 @@ public class CommandeDAOImpl implements CommandeDAO {
 
     @Override
     public List<LigneCommande> getLignesCommande(int commandeId) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            return getLignesCommande(commandeId, conn);
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<LigneCommande> getLignesCommande(int commandeId, Connection conn) {
         List<LigneCommande> lignes = new ArrayList<>();
         String sql = "SELECT * FROM lignes_commande WHERE commande_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, commandeId);
             ResultSet rs = stmt.executeQuery();
 
@@ -146,6 +162,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
+            throw new RuntimeException(e);
         }
         return lignes;
     }

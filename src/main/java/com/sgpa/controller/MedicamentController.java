@@ -93,6 +93,7 @@ public class MedicamentController {
     private void chargerMedicaments() {
         medicaments.clear();
         medicaments.addAll(service.getAllMedicaments());
+        medicaments.sort(java.util.Comparator.comparingInt(Medicament::getId));
         tableView.setItems(medicaments);
     }
 
@@ -167,7 +168,13 @@ public class MedicamentController {
             selectedMedicament.setSeuilMinAlerte(Integer.parseInt(txtSeuil.getText()));
 
             service.modifierMedicament(selectedMedicament);
+            int selectedId = selectedMedicament.getId();
             chargerMedicaments();
+            // Re-sélectionner le médicament modifié
+            medicaments.stream()
+                    .filter(m -> m.getId() == selectedId)
+                    .findFirst()
+                    .ifPresent(m -> tableView.getSelectionModel().select(m));
             showAlert("Succès", "Médicament modifié avec succès !", Alert.AlertType.INFORMATION);
         } catch (NumberFormatException e) {
             showAlert("Erreur", "Veuillez entrer des valeurs valides.", Alert.AlertType.ERROR);

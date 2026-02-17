@@ -16,11 +16,18 @@ public class LotDAOImpl implements LotDAO {
 
     @Override
     public void create(Lot lot) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            create(lot, conn);
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la creation du lot", e);
+        }
+    }
+
+    @Override
+    public void create(Lot lot, Connection conn) {
         String sql = "INSERT INTO lots (medicament_id, numero_lot, quantite_stock, date_peremption, prix_achat) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, lot.getMedicamentId());
             stmt.setString(2, lot.getNumeroLot());
             stmt.setInt(3, lot.getQuantiteStock());
@@ -35,6 +42,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation du lot", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -102,11 +110,18 @@ public class LotDAOImpl implements LotDAO {
 
     @Override
     public void update(Lot lot) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            update(lot, conn);
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la mise a jour du lot {}", lot.getId(), e);
+        }
+    }
+
+    @Override
+    public void update(Lot lot, Connection conn) {
         String sql = "UPDATE lots SET medicament_id=?, numero_lot=?, quantite_stock=?, date_peremption=?, prix_achat=? WHERE id=?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, lot.getMedicamentId());
             stmt.setString(2, lot.getNumeroLot());
             stmt.setInt(3, lot.getQuantiteStock());
@@ -117,6 +132,7 @@ public class LotDAOImpl implements LotDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour du lot {}", lot.getId(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -177,15 +193,23 @@ public class LotDAOImpl implements LotDAO {
 
     @Override
     public List<Lot> findByMedicamentIdOrderByDate(int medicamentId) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            return findByMedicamentIdOrderByDate(medicamentId, conn);
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la recherche des lots ordonnes du medicament {}", medicamentId, e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Lot> findByMedicamentIdOrderByDate(int medicamentId, Connection conn) {
         List<Lot> liste = new ArrayList<>();
         String sql = "SELECT l.*, m.nom_commercial FROM lots l " +
                 "JOIN medicaments m ON l.medicament_id = m.id " +
                 "WHERE l.medicament_id = ? AND l.quantite_stock > 0 " +
                 "ORDER BY l.date_peremption ASC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, medicamentId);
             ResultSet rs = stmt.executeQuery();
 
@@ -194,6 +218,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche des lots ordonnes du medicament {}", medicamentId, e);
+            throw new RuntimeException(e);
         }
         return liste;
     }
