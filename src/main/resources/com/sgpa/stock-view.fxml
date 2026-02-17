@@ -10,6 +10,11 @@
 
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Label text="Stock" styleClass="section-title"/>
+        <Label text="ℹ️" style="-fx-font-size: 16px; -fx-cursor: hand;">
+            <tooltip>
+                <Tooltip text="🟠 Orange = Stock Faible (quantité totale &lt; seuil)&#10;🟡 Jaune = Périme bientôt (&lt; 3 mois)"/>
+            </tooltip>
+        </Label>
         <Region HBox.hgrow="ALWAYS"/>
         <ToggleButton fx:id="btnArchives" text="Voir Archives" onAction="#handleToggleArchives" styleClass="button"/>
         <Button text="Actualiser" onAction="#handleActualiser" styleClass="button"/>

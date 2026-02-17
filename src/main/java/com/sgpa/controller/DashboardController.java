@@ -170,13 +170,14 @@ public class DashboardController {
         tableDernieresVentes.setItems(FXCollections.observableArrayList(ventes.stream().limit(10).toList()));
 
         // Update Alerts - Stock Épuisé
+        // Note: Client considers "Épuisé" as strictly 0.
+        // We fetch all low stock items but only display those with 0 quantity.
         List<Medicament> alertesStock = dashboardService.getMedicamentService().getMedicamentsEnAlerteStock();
         ObservableList<StockEpuiseItem> stockItems = FXCollections.observableArrayList();
 
         for (Medicament m : alertesStock) {
             int stock = dashboardService.getMedicamentService().getStockTotal(m.getId());
-            // Double check if it is critical (though getMedicamentsEnAlerteStock should normally return only those)
-            if (stock < m.getSeuilMinAlerte()) {
+            if (stock == 0) {
                 stockItems.add(new StockEpuiseItem(
                         m.getNomCommercial(),
                         m.getFormeGalenique(),
