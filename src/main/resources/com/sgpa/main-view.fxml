@@ -45,7 +45,6 @@
             <Button text="📦 Stock" onAction="#showStock" styleClass="menu-button" maxWidth="Infinity"/>
             <Button text="💰 Ventes" onAction="#showVentes" styleClass="menu-button" maxWidth="Infinity"/>
             <Button text="🚚 Commandes" onAction="#showCommandes" styleClass="menu-button" maxWidth="Infinity"/>
-            <Button text="⚠️ Alertes" onAction="#showAlertes" styleClass="menu-button" maxWidth="Infinity"/>
             
             <Separator fx:id="separatorAdmin" managed="false" visible="false"/>
             <Button fx:id="btnUtilisateurs" text="👥 Utilisateurs" onAction="#showUtilisateurs" styleClass="menu-button" maxWidth="Infinity" managed="false" visible="false"/>

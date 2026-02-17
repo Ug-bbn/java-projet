@@ -11,14 +11,15 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class DashboardController {
 
@@ -45,10 +46,25 @@ public class DashboardController {
     @FXML
     private TableColumn<Vente, String> colVenteMontant;
 
+    // --- New Tables ---
+
     @FXML
-    private ListView<AlerteItem> listStockEpuise;
+    private TableView<StockEpuiseItem> tableStockEpuise;
     @FXML
-    private ListView<AlerteItem> listMedicamentsPerimes;
+    private TableColumn<StockEpuiseItem, String> colStockNom;
+    @FXML
+    private TableColumn<StockEpuiseItem, String> colStockForme;
+    @FXML
+    private TableColumn<StockEpuiseItem, Integer> colStockQuantite;
+
+    @FXML
+    private TableView<MedicamentPerimeItem> tableMedicamentsPerimes;
+    @FXML
+    private TableColumn<MedicamentPerimeItem, String> colPerimeNom;
+    @FXML
+    private TableColumn<MedicamentPerimeItem, String> colPerimeLot;
+    @FXML
+    private TableColumn<MedicamentPerimeItem, String> colPerimeDate;
 
     private DashboardService dashboardService;
 
@@ -59,58 +75,30 @@ public class DashboardController {
     @FXML
     public void initialize() {
         setupTables();
-        setupAlertsList();
         setupChart();
         refreshData();
     }
 
     private void setupTables() {
-        colVenteId
-                .setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
+        // Dernieres Ventes
+        colVenteId.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
+        colVenteHeure.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+                cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))));
+        colVenteMontant.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+                cell.getValue().getTotalVente().toPlainString() + " €"));
 
-        colVenteHeure.setCellValueFactory(cell -> {
-            return new javafx.beans.property.SimpleStringProperty(
-                    cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")));
-        });
+        // Stock Epuise
+        colStockNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
+        colStockForme.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getForme()));
+        colStockQuantite.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getQuantite()));
 
-        colVenteMontant.setCellValueFactory(cell -> {
-            return new javafx.beans.property.SimpleStringProperty(
-                    cell.getValue().getTotalVente().toPlainString() + " €");
-        });
-    }
-
-    private void setupAlertsList() {
-        javafx.util.Callback<ListView<AlerteItem>, javafx.scene.control.ListCell<AlerteItem>> cellFactory =
-                lv -> new javafx.scene.control.ListCell<AlerteItem>() {
-            @Override
-            protected void updateItem(AlerteItem item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    Label label = new Label(item.message);
-                    if (item.isCritical) {
-                        label.setGraphic(new Label("⚠️"));
-                        label.getGraphic().setStyle("-fx-text-fill: -color-danger-fg;");
-                        label.setStyle("-fx-text-fill: -color-danger-fg;");
-                    } else {
-                        label.setGraphic(new Label("⚠️"));
-                        label.getGraphic().setStyle("-fx-text-fill: -color-warning-fg;");
-                        label.setStyle("-fx-text-fill: -color-fg-default;");
-                    }
-                    setGraphic(label);
-                }
-            }
-        };
-        listStockEpuise.setCellFactory(cellFactory);
-        listMedicamentsPerimes.setCellFactory(cellFactory);
+        // Medicaments Perimes
+        colPerimeNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
+        colPerimeLot.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNumeroLot()));
+        colPerimeDate.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDatePeremption()));
     }
 
     private void setupChart() {
-        // Fix Y-Axis formatting to remove "k" for small numbers if needed,
-        // essentially just letting it bear normal numbers or currency.
-        // Assuming the axis is NumberAxis from FXML.
         if (chartVentesSemaine.getYAxis() instanceof javafx.scene.chart.NumberAxis) {
             javafx.scene.chart.NumberAxis yAxis = (javafx.scene.chart.NumberAxis) chartVentesSemaine.getYAxis();
             yAxis.setTickLabelFormatter(new javafx.util.StringConverter<Number>() {
@@ -176,40 +164,88 @@ public class DashboardController {
     }
 
     private void updateLists() {
-        // Update Table
+        // Update Table Dernieres Ventes
         List<Vente> ventes = dashboardService.getVenteService().getHistoriqueVentes();
         ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
         tableDernieresVentes.setItems(FXCollections.observableArrayList(ventes.stream().limit(10).toList()));
 
         // Update Alerts - Stock Épuisé
-        listStockEpuise.getItems().clear();
         List<Medicament> alertesStock = dashboardService.getMedicamentService().getMedicamentsEnAlerteStock();
-        alertesStock.forEach(m -> {
+        ObservableList<StockEpuiseItem> stockItems = FXCollections.observableArrayList();
+
+        for (Medicament m : alertesStock) {
             int stock = dashboardService.getMedicamentService().getStockTotal(m.getId());
-            listStockEpuise.getItems().add(new AlerteItem(
-                    m.getNomCommercial() + " - Stock : " + stock + " (seuil : " + m.getSeuilMinAlerte() + ")", false));
-        });
+            // Double check if it is critical (though getMedicamentsEnAlerteStock should normally return only those)
+            if (stock < m.getSeuilMinAlerte()) {
+                stockItems.add(new StockEpuiseItem(
+                        m.getNomCommercial(),
+                        m.getFormeGalenique(),
+                        stock
+                ));
+            }
+        }
+        tableStockEpuise.setItems(stockItems);
 
         // Update Alerts - Médicaments Périmés
-        listMedicamentsPerimes.getItems().clear();
-        List<Lot> alertesPeremption = dashboardService.getMedicamentService().getLotsProchesPeremption();
-        alertesPeremption.forEach(l -> {
-            String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
-                    ? l.getNomMedicament()
-                    : "Médicament #" + l.getMedicamentId();
-            listMedicamentsPerimes.getItems().add(new AlerteItem(
-                    nom + " — Lot n° " + l.getNumeroLot(), true));
-        });
+        List<Lot> allLots = dashboardService.getMedicamentService().getLotsProchesPeremption();
+        // getLotsProchesPeremption likely returns lots close to expiry or expired.
+        // We strictly want expired: datePeremption < LocalDate.now()
+
+        ObservableList<MedicamentPerimeItem> perimeItems = FXCollections.observableArrayList();
+        Set<String> seen = new HashSet<>();
+        LocalDate today = LocalDate.now();
+
+        for (Lot l : allLots) {
+            if (l.getDatePeremption().isBefore(today)) {
+                String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
+                        ? l.getNomMedicament()
+                        : "Médicament #" + l.getMedicamentId();
+
+                // Key for duplicates: MedicamentName + BatchNumber
+                String key = nom + "|" + l.getNumeroLot();
+                if (seen.add(key)) {
+                    perimeItems.add(new MedicamentPerimeItem(
+                            nom,
+                            l.getNumeroLot(),
+                            l.getDatePeremption().toString()
+                    ));
+                }
+            }
+        }
+        tableMedicamentsPerimes.setItems(perimeItems);
     }
 
-    // Simple record for Alerts
-    private static class AlerteItem {
-        String message;
-        boolean isCritical;
+    // --- Inner Classes for Table Views ---
 
-        public AlerteItem(String message, boolean isCritical) {
-            this.message = message;
-            this.isCritical = isCritical;
+    public static class StockEpuiseItem {
+        private final String nom;
+        private final String forme;
+        private final int quantite;
+
+        public StockEpuiseItem(String nom, String forme, int quantite) {
+            this.nom = nom;
+            this.forme = forme;
+            this.quantite = quantite;
         }
+
+        public String getNom() { return nom; }
+        public String getForme() { return forme; }
+        public int getQuantite() { return quantite; }
+    }
+
+    public static class MedicamentPerimeItem {
+        private final String nom;
+        private final String numeroLot;
+        private final String datePeremption;
+
+        public MedicamentPerimeItem(String nom, String numeroLot, String datePeremption) {
+            this.nom = nom;
+            this.numeroLot = numeroLot;
+            this.datePeremption = datePeremption;
+        }
+
+        public String getNom() { return nom; }
+        public String getNumeroLot() { return numeroLot; }
+        public String getDatePeremption() { return datePeremption; }
     }
 }

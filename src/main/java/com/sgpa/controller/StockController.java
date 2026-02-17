@@ -24,6 +24,9 @@ public class StockController {
     @FXML
     private TableColumn<Lot, Double> colPrixAchat;
 
+    @FXML
+    private ToggleButton btnArchives;
+
     private final StockService stockService = new StockService();
     private final ObservableList<Lot> lots = FXCollections.observableArrayList();
 
@@ -52,9 +55,28 @@ public class StockController {
         chargerTousLesLots();
     }
 
+    @FXML
+    private void handleToggleArchives() {
+        chargerTousLesLots();
+    }
+
     private void chargerTousLesLots() {
         lots.clear();
-        lots.addAll(stockService.getAllLots());
+        java.util.List<Lot> allLots = stockService.getAllLots();
+
+        boolean showArchives = btnArchives != null && btnArchives.isSelected();
+
+        if (showArchives) {
+            // Mode Archives: seulement Quantité == 0
+            allLots.stream()
+                    .filter(l -> l.getQuantiteStock() == 0)
+                    .forEach(lots::add);
+        } else {
+            // Mode par défaut: seulement Quantité > 0
+            allLots.stream()
+                    .filter(l -> l.getQuantiteStock() > 0)
+                    .forEach(lots::add);
+        }
         tableLots.setItems(lots);
     }
 }

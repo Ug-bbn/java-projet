@@ -126,13 +126,31 @@
                                 <VBox styleClass="list-container" VBox.vgrow="ALWAYS">
                                     <children>
                                         <Label text="Stock Épuisé" styleClass="section-title" />
-                                        <ListView fx:id="listStockEpuise" VBox.vgrow="ALWAYS" />
+                                        <TableView fx:id="tableStockEpuise" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="colStockNom" text="Nom du Médicament" />
+                                                <TableColumn fx:id="colStockForme" text="Forme Galénique" />
+                                                <TableColumn fx:id="colStockQuantite" text="Quantité Totale" style="-fx-alignment: CENTER-RIGHT;"/>
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
                                     </children>
                                 </VBox>
                                 <VBox styleClass="list-container" VBox.vgrow="ALWAYS">
                                     <children>
                                         <Label text="Médicaments Périmés" styleClass="section-title" />
-                                        <ListView fx:id="listMedicamentsPerimes" VBox.vgrow="ALWAYS" />
+                                        <TableView fx:id="tableMedicamentsPerimes" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="colPerimeNom" text="Nom du Médicament" />
+                                                <TableColumn fx:id="colPerimeLot" text="Numéro de Lot" />
+                                                <TableColumn fx:id="colPerimeDate" text="Date de Péremption" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
                                     </children>
                                 </VBox>
                             </children>

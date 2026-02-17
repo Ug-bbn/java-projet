@@ -60,6 +60,7 @@
             <placeholder><Label text="Aucun article ajouté. Sélectionnez un médicament ci-dessus."/></placeholder>
             <columns>
                 <TableColumn fx:id="colArticleMedicament" text="Médicament" minWidth="200"/>
+                <TableColumn fx:id="colArticleForme" text="Forme" minWidth="100"/>
                 <TableColumn fx:id="colArticleQuantite" text="Quantité" minWidth="80" prefWidth="90"/>
                 <TableColumn fx:id="colArticlePrix" text="Prix unitaire (€)" minWidth="100" prefWidth="120"/>
                 <TableColumn fx:id="colArticleTotal" text="Total (€)" minWidth="100" prefWidth="120"/>
@@ -89,6 +90,7 @@
             <placeholder><Label text="Aucune commande enregistrée."/></placeholder>
             <columns>
                 <TableColumn fx:id="colId" text="N°" minWidth="50" prefWidth="60"/>
+                <TableColumn fx:id="colNumeroLot" text="N° Lot" minWidth="120"/>
                 <TableColumn fx:id="colFournisseur" text="Fournisseur" minWidth="160"/>
                 <TableColumn fx:id="colDate" text="Date" minWidth="140" prefWidth="160"/>
                 <TableColumn fx:id="colStatut" text="Statut" minWidth="100" prefWidth="120"/>

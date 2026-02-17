@@ -17,7 +17,7 @@ public class CommandeDAOImpl implements CommandeDAO {
 
     @Override
     public void create(Commande cmd) {
-        String sql = "INSERT INTO commandes (fournisseur_id, date_commande, statut) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO commandes (fournisseur_id, date_commande, statut, numero_lot) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -25,6 +25,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.setInt(1, cmd.getFournisseurId());
             stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDateCommande()));
             stmt.setString(3, cmd.getStatut().getLabel());
+            stmt.setString(4, cmd.getNumeroLot());
 
             stmt.executeUpdate();
 
@@ -85,13 +86,14 @@ public class CommandeDAOImpl implements CommandeDAO {
 
     @Override
     public void update(Commande cmd, Connection conn) {
-        String sql = "UPDATE commandes SET fournisseur_id=?, date_commande=?, statut=? WHERE id=?";
+        String sql = "UPDATE commandes SET fournisseur_id=?, date_commande=?, statut=?, numero_lot=? WHERE id=?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, cmd.getFournisseurId());
             stmt.setTimestamp(2, Timestamp.valueOf(cmd.getDateCommande()));
             stmt.setString(3, cmd.getStatut().getLabel());
-            stmt.setInt(4, cmd.getId());
+            stmt.setString(4, cmd.getNumeroLot());
+            stmt.setInt(5, cmd.getId());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -173,6 +175,7 @@ public class CommandeDAOImpl implements CommandeDAO {
         cmd.setFournisseurId(rs.getInt("fournisseur_id"));
         cmd.setDateCommande(rs.getTimestamp("date_commande").toLocalDateTime());
         cmd.setStatut(StatutCommande.fromString(rs.getString("statut")));
+        cmd.setNumeroLot(rs.getString("numero_lot"));
         return cmd;
     }
 }

@@ -61,11 +61,6 @@ public class MainController {
     }
 
     @FXML
-    private void showAlertes() {
-        loadView("alerte-view.fxml");
-    }
-
-    @FXML
     private void showUtilisateurs() {
         loadView("utilisateur-view.fxml");
     }

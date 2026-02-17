@@ -11,6 +11,7 @@
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Label text="Stock" styleClass="section-title"/>
         <Region HBox.hgrow="ALWAYS"/>
+        <ToggleButton fx:id="btnArchives" text="Voir Archives" onAction="#handleToggleArchives" styleClass="button"/>
         <Button text="Actualiser" onAction="#handleActualiser" styleClass="button"/>
     </HBox>
 
