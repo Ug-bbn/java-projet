@@ -10,6 +10,7 @@ public class Commande {
     private int fournisseurId;
     private LocalDateTime dateCommande;
     private StatutCommande statut;
+    private String numeroLot;
     private List<LigneCommande> lignes;
 
     public Commande() {
@@ -34,6 +35,9 @@ public class Commande {
 
     public StatutCommande getStatut() { return statut; }
     public void setStatut(StatutCommande statut) { this.statut = statut; }
+
+    public String getNumeroLot() { return numeroLot; }
+    public void setNumeroLot(String numeroLot) { this.numeroLot = numeroLot; }
 
     public List<LigneCommande> getLignes() { return lignes; }
     public void setLignes(List<LigneCommande> lignes) { this.lignes = lignes; }

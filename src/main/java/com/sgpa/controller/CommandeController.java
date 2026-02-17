@@ -44,6 +44,8 @@ public class CommandeController {
     @FXML
     private TableColumn<LigneCommande, String> colArticleMedicament;
     @FXML
+    private TableColumn<LigneCommande, String> colArticleForme;
+    @FXML
     private TableColumn<LigneCommande, Integer> colArticleQuantite;
     @FXML
     private TableColumn<LigneCommande, String> colArticlePrix;
@@ -57,6 +59,8 @@ public class CommandeController {
     private TableView<Commande> tableCommandes;
     @FXML
     private TableColumn<Commande, Integer> colId;
+    @FXML
+    private TableColumn<Commande, String> colNumeroLot;
     @FXML
     private TableColumn<Commande, String> colFournisseur;
     @FXML
@@ -98,6 +102,10 @@ public class CommandeController {
         // --- Commandes table columns ---
         colId.setCellValueFactory(
                 cd -> new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getId()).asObject());
+
+        colNumeroLot.setCellValueFactory(cd ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cd.getValue().getNumeroLot() != null ? cd.getValue().getNumeroLot() : ""));
 
         colFournisseur.setCellValueFactory(cd -> {
             int fid = cd.getValue().getFournisseurId();
@@ -160,6 +168,15 @@ public class CommandeController {
                     .map(Medicament::getNomCommercial)
                     .findFirst().orElse("?");
             return new javafx.beans.property.SimpleStringProperty(nom);
+        });
+
+        colArticleForme.setCellValueFactory(cd -> {
+            int medId = cd.getValue().getMedicamentId();
+            String forme = medicamentCache.stream()
+                    .filter(m -> m.getId() == medId)
+                    .map(Medicament::getFormeGalenique)
+                    .findFirst().orElse("-");
+            return new javafx.beans.property.SimpleStringProperty(forme);
         });
 
         colArticleQuantite.setCellValueFactory(

@@ -71,6 +71,7 @@ public class CommandeService {
                 }
 
                 commande.setStatut(StatutCommande.RECUE);
+                commande.setNumeroLot(numeroLot);
                 commandeDAO.update(commande, conn);
 
                 conn.commit();

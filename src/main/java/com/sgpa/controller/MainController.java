@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class MainController {
     private static final Logger logger = LoggerFactory.getLogger(MainController.class);
@@ -23,6 +25,9 @@ public class MainController {
 
     @FXML
     private Label lblUtilisateur;
+
+    @FXML
+    private Label lblDate;
 
     @FXML
     private Button btnToggleTheme;
@@ -61,11 +66,6 @@ public class MainController {
     }
 
     @FXML
-    private void showAlertes() {
-        loadView("alerte-view.fxml");
-    }
-
-    @FXML
     private void showUtilisateurs() {
         loadView("utilisateur-view.fxml");
     }
@@ -98,6 +98,11 @@ public class MainController {
                 separatorAdmin.setVisible(true);
                 separatorAdmin.setManaged(true);
             }
+        }
+
+        // Initialiser la date du jour
+        if (lblDate != null) {
+            lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
 
         // Charger le tableau de bord par défaut

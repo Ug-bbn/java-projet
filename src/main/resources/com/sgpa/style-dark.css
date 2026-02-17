@@ -174,6 +174,41 @@ StackPane {
     -fx-text-fill: white;
 }
 
+/* New stock row styles */
+.table-row-cell.row-low-stock {
+    -fx-background-color: #e67e22;
+    -fx-text-fill: white;
+}
+
+.table-row-cell.row-low-stock:hover {
+    -fx-background-color: #d35400;
+}
+
+.table-row-cell.row-low-stock:selected {
+    -fx-background-color: #a04000;
+}
+
+.table-row-cell.row-low-stock .table-cell {
+    -fx-text-fill: white;
+}
+
+.table-row-cell.row-expiring {
+    -fx-background-color: #f1c40f;
+    -fx-text-fill: #1a1a2e; /* Dark text for contrast */
+}
+
+.table-row-cell.row-expiring:hover {
+    -fx-background-color: #f39c12;
+}
+
+.table-row-cell.row-expiring:selected {
+    -fx-background-color: #d68910;
+}
+
+.table-row-cell.row-expiring .table-cell {
+    -fx-text-fill: #1a1a2e;
+}
+
 .table-view .placeholder {
     -fx-background-color: #16213e;
 }
@@ -194,6 +229,15 @@ StackPane {
     -fx-padding: 10px 8px;
     -fx-alignment: CENTER_LEFT;
     -fx-text-fill: #ccd6f6;
+}
+
+/* Fix text color for styled rows */
+.row-low-stock .table-cell {
+    -fx-text-fill: white;
+}
+
+.row-expiring .table-cell {
+    -fx-text-fill: #1a1a2e;
 }
 
 /* === PANNEAU DE DÉTAILS === */

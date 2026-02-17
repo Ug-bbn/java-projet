@@ -36,7 +36,8 @@ CREATE TABLE IF NOT EXISTS commandes (
     id SERIAL PRIMARY KEY,
     fournisseur_id INTEGER REFERENCES fournisseurs(id) ON DELETE SET NULL,
     date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    statut VARCHAR(20)
+    statut VARCHAR(20),
+    numero_lot VARCHAR(50)
 );
 
 -- Table Lignes de Commande
