@@ -54,8 +54,6 @@ public class DashboardController {
     private TableColumn<StockEpuiseItem, String> colStockNom;
     @FXML
     private TableColumn<StockEpuiseItem, String> colStockForme;
-    @FXML
-    private TableColumn<StockEpuiseItem, Integer> colStockQuantite;
 
     @FXML
     private TableView<MedicamentPerimeItem> tableMedicamentsPerimes;
@@ -90,7 +88,6 @@ public class DashboardController {
         // Stock Epuise
         colStockNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
         colStockForme.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getForme()));
-        colStockQuantite.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getQuantite()));
 
         // Medicaments Perimes
         colPerimeNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
