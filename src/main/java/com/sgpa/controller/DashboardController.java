@@ -187,14 +187,15 @@ public class DashboardController {
         // Update Alerts - Médicaments Périmés
         List<Lot> allLots = dashboardService.getMedicamentService().getLotsProchesPeremption();
         // getLotsProchesPeremption likely returns lots close to expiry or expired.
-        // We strictly want expired: datePeremption < LocalDate.now()
+        // We strictly want expired: datePeremption <= LocalDate.now()
 
         ObservableList<MedicamentPerimeItem> perimeItems = FXCollections.observableArrayList();
         Set<String> seen = new HashSet<>();
         LocalDate today = LocalDate.now();
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         for (Lot l : allLots) {
-            if (l.getDatePeremption().isBefore(today)) {
+            if (!l.getDatePeremption().isAfter(today)) {
                 String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
                         ? l.getNomMedicament()
                         : "Médicament #" + l.getMedicamentId();
@@ -205,7 +206,7 @@ public class DashboardController {
                     perimeItems.add(new MedicamentPerimeItem(
                             nom,
                             l.getNumeroLot(),
-                            l.getDatePeremption().toString()
+                            l.getDatePeremption().format(dateFmt)
                     ));
                 }
             }
