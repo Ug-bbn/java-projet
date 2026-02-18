@@ -4,10 +4,9 @@ import com.sgpa.model.Lot;
 import com.sgpa.model.Medicament;
 import com.sgpa.model.Vente;
 import com.sgpa.service.DashboardService;
-import javafx.application.Platform;
+import com.sgpa.service.ServiceLocator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
@@ -19,7 +18,6 @@ import javafx.scene.control.TableView;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +47,8 @@ public class DashboardController {
     @FXML
     private TableColumn<Vente, String> colVenteMontant;
 
+    // --- New Tables ---
+
     @FXML
     private TableView<StockEpuiseItem> tableStockEpuise;
     @FXML
@@ -65,39 +65,40 @@ public class DashboardController {
     @FXML
     private TableColumn<MedicamentPerimeItem, String> colPerimeDate;
 
-    private final DashboardService dashboardService = new DashboardService();
+    private DashboardService dashboardService;
+
+    public DashboardController() {
+        this.dashboardService = ServiceLocator.getInstance().getDashboardService();
+    }
 
     @FXML
     public void initialize() {
         setupTables();
         setupChart();
-        tableDernieresVentes.setPlaceholder(new Label("Aucune vente récente"));
-        tableStockEpuise.setPlaceholder(new Label("Aucun stock épuisé"));
-        tableMedicamentsPerimes.setPlaceholder(new Label("Aucun médicament périmé en stock"));
         refreshData();
     }
 
     private void setupTables() {
+        // Dernieres Ventes
         colVenteId.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getId()));
         colVenteHeure.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
                 cell.getValue().getDateVente().format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))));
         colVenteMontant.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
                 cell.getValue().getTotalVente().toPlainString() + " €"));
 
+        // Stock Epuise
         colStockNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
         colStockForme.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getForme()));
 
+        // Medicaments Perimes
         colPerimeNom.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNom()));
         colPerimeLot.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getNumeroLot()));
         colPerimeDate.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDatePeremption()));
     }
 
     private void setupChart() {
-        if (chartVentesSemaine.getXAxis() instanceof javafx.scene.chart.CategoryAxis xAxis) {
-            xAxis.setTickLabelRotation(-45);
-            xAxis.setTickLabelGap(5);
-        }
-        if (chartVentesSemaine.getYAxis() instanceof javafx.scene.chart.NumberAxis yAxis) {
+        if (chartVentesSemaine.getYAxis() instanceof javafx.scene.chart.NumberAxis) {
+            javafx.scene.chart.NumberAxis yAxis = (javafx.scene.chart.NumberAxis) chartVentesSemaine.getYAxis();
             yAxis.setTickLabelFormatter(new javafx.util.StringConverter<Number>() {
                 @Override
                 public String toString(Number object) {
@@ -113,66 +114,33 @@ public class DashboardController {
     }
 
     public void refreshData() {
-        Task<DashboardSnapshot> task = new Task<>() {
-            @Override
-            protected DashboardSnapshot call() {
-                DashboardSnapshot snap = new DashboardSnapshot();
-                snap.totalMedicaments = dashboardService.getTotalMedicaments();
-                snap.alertesCount = dashboardService.getAlertesStockCount();
-                snap.ventesJour = dashboardService.getVentesDuJour();
-                snap.commandesEnAttente = dashboardService.getCommandesEnAttente();
-                snap.ventes = dashboardService.getHistoriqueVentes();
-                snap.medicaments = dashboardService.getAllMedicaments();
-                snap.medicamentsEpuises = dashboardService.getMedicamentsStockEpuise();
-                snap.lotsPerimes = dashboardService.getLotsPerimes();
-
-                // Pre-compute stock for pie chart (top 5)
-                snap.pieData = new ArrayList<>();
-                snap.medicaments.stream().limit(5).forEach(m -> {
-                    int stock = dashboardService.getStockTotal(m.getId());
-                    if (stock > 0) {
-                        snap.pieData.add(new PieChart.Data(m.getNomCommercial(), stock));
-                    }
-                });
-
-                return snap;
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            DashboardSnapshot snap = task.getValue();
-            applySnapshot(snap);
-        });
-
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            if (ex != null) {
-                ex.printStackTrace();
-            }
-        });
-
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        updateKPIs();
+        updateCharts();
+        updateLists();
     }
 
-    private void applySnapshot(DashboardSnapshot snap) {
-        // KPIs
-        lblTotalMedicaments.setText(String.valueOf(snap.totalMedicaments));
-        lblAlertesStock.setText(String.valueOf(snap.alertesCount));
-        lblVentesDuJour.setText(snap.ventesJour.toPlainString() + " €");
-        lblCommandesEnAttente.setText(String.valueOf(snap.commandesEnAttente));
+    private void updateKPIs() {
+        lblTotalMedicaments.setText(String.valueOf(dashboardService.getTotalMedicaments()));
+        lblAlertesStock.setText(String.valueOf(dashboardService.getAlertesStockCount()));
 
-        // Bar Chart
+        BigDecimal ventesJour = dashboardService.getVentesDuJour();
+        lblVentesDuJour.setText(ventesJour.toPlainString() + " €");
+
+        lblCommandesEnAttente.setText(String.valueOf(dashboardService.getCommandesEnAttente()));
+    }
+
+    private void updateCharts() {
         chartVentesSemaine.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Ventes");
+
+        List<Vente> ventes = dashboardService.getVenteService().getHistoriqueVentes();
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
 
         for (int i = 6; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
-            BigDecimal total = snap.ventes.stream()
+            BigDecimal total = ventes.stream()
                     .filter(v -> v.getDateVente().toLocalDate().isEqual(date))
                     .map(Vente::getTotalVente)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -180,50 +148,74 @@ public class DashboardController {
         }
         chartVentesSemaine.getData().add(series);
 
-        // Pie Chart
         chartRepartitionStock.getData().clear();
-        chartRepartitionStock.setData(FXCollections.observableArrayList(snap.pieData));
+        List<Medicament> meds = dashboardService.getMedicamentService().getAllMedicaments();
 
-        // Dernieres Ventes
-        snap.ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
-        tableDernieresVentes.setItems(FXCollections.observableArrayList(snap.ventes.stream().limit(10).toList()));
+        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+        meds.stream().limit(5).forEach(m -> {
+            int stock = dashboardService.getMedicamentService().getStockTotal(m.getId());
+            if (stock > 0) {
+                pieData.add(new PieChart.Data(m.getNomCommercial(), stock));
+            }
+        });
+        chartRepartitionStock.setData(pieData);
+    }
 
-        // Stock Epuise
+    private void updateLists() {
+        // Update Table Dernieres Ventes
+        List<Vente> ventes = dashboardService.getVenteService().getHistoriqueVentes();
+        ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
+        tableDernieresVentes.setItems(FXCollections.observableArrayList(ventes.stream().limit(10).toList()));
+
+        // Update Alerts - Stock Épuisé
+        // Note: Client considers "Épuisé" as strictly 0.
+        // We fetch all low stock items but only display those with 0 quantity.
+        List<Medicament> alertesStock = dashboardService.getMedicamentService().getMedicamentsEnAlerteStock();
         ObservableList<StockEpuiseItem> stockItems = FXCollections.observableArrayList();
-        for (Medicament m : snap.medicamentsEpuises) {
-            stockItems.add(new StockEpuiseItem(m.getNomCommercial(), m.getFormeGalenique(), 0));
+
+        for (Medicament m : alertesStock) {
+            int stock = dashboardService.getMedicamentService().getStockTotal(m.getId());
+            if (stock == 0) {
+                stockItems.add(new StockEpuiseItem(
+                        m.getNomCommercial(),
+                        m.getFormeGalenique(),
+                        stock
+                ));
+            }
         }
         tableStockEpuise.setItems(stockItems);
 
-        // Medicaments Perimes
+        // Update Alerts - Médicaments Périmés
+        List<Lot> allLots = dashboardService.getMedicamentService().getLotsProchesPeremption();
+        // getLotsProchesPeremption likely returns lots close to expiry or expired.
+        // We strictly want expired: datePeremption <= LocalDate.now()
+
         ObservableList<MedicamentPerimeItem> perimeItems = FXCollections.observableArrayList();
         Set<String> seen = new HashSet<>();
+        LocalDate today = LocalDate.now();
         DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        for (Lot l : snap.lotsPerimes) {
-            String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
-                    ? l.getNomMedicament()
-                    : "Médicament #" + l.getMedicamentId();
-            String key = nom + "|" + l.getNumeroLot();
-            if (seen.add(key)) {
-                perimeItems.add(new MedicamentPerimeItem(nom, l.getNumeroLot(), l.getDatePeremption().format(dateFmt)));
+        for (Lot l : allLots) {
+            if (!l.getDatePeremption().isAfter(today)) {
+                String nom = (l.getNomMedicament() != null && !l.getNomMedicament().isEmpty())
+                        ? l.getNomMedicament()
+                        : "Médicament #" + l.getMedicamentId();
+
+                // Key for duplicates: MedicamentName + BatchNumber
+                String key = nom + "|" + l.getNumeroLot();
+                if (seen.add(key)) {
+                    perimeItems.add(new MedicamentPerimeItem(
+                            nom,
+                            l.getNumeroLot(),
+                            l.getDatePeremption().format(dateFmt)
+                    ));
+                }
             }
         }
         tableMedicamentsPerimes.setItems(perimeItems);
     }
 
-    // Snapshot object to transfer data from background thread to FX thread
-    private static class DashboardSnapshot {
-        int totalMedicaments;
-        int alertesCount;
-        BigDecimal ventesJour;
-        long commandesEnAttente;
-        List<Vente> ventes;
-        List<Medicament> medicaments;
-        List<Medicament> medicamentsEpuises;
-        List<Lot> lotsPerimes;
-        List<PieChart.Data> pieData;
-    }
+    // --- Inner Classes for Table Views ---
 
     public static class StockEpuiseItem {
         private final String nom;

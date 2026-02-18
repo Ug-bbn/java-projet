@@ -1,5 +1,7 @@
 package com.sgpa.util;
 
+import com.sgpa.MainApp;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,10 +11,10 @@ import java.util.Properties;
 
 public class LocalUserData {
 
-    private static final String TEMP_PATH = System.getProperty("java.io.tmpdir");
+    private static final String USER_HOME = System.getProperty("user.home");
 
     // Using a folder name specific to our app to avoid conflicts
-    private static final File FOLDER = new File(TEMP_PATH + "/SGPA_Dashboard"),
+    private static final File FOLDER = new File(USER_HOME + "/.sgpa"),
             PROPERTIES_FILE = new File(FOLDER, "data.properties");
 
     private static Properties properties = null;

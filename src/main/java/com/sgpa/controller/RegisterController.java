@@ -1,6 +1,7 @@
 package com.sgpa.controller;
 
 import com.sgpa.service.AuthentificationService;
+import com.sgpa.service.ServiceLocator;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -24,7 +25,7 @@ public class RegisterController {
     @FXML private Label lblError;
     @FXML private Label lblSuccess;
 
-    private AuthentificationService authService = new AuthentificationService();
+    private AuthentificationService authService = ServiceLocator.getInstance().getAuthentificationService();
 
     @FXML
     private void handleRegister() {
@@ -59,7 +60,7 @@ public class RegisterController {
         boolean success = authService.register(username, password, nom, prenom);
 
         if (success) {
-            showSuccess("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
+            showSuccess("Compte cree avec succes ! Vous pouvez maintenant vous connecter.");
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
             delay.setOnFinished(e -> handleRetourLogin());
             delay.play();
@@ -73,7 +74,6 @@ public class RegisterController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sgpa/login-view.fxml"));
             Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
             Stage stage = (Stage) txtUsername.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Connexion - SGPA");
@@ -86,16 +86,12 @@ public class RegisterController {
     private void showError(String message) {
         lblError.setText(message);
         lblError.setVisible(true);
-        lblError.setManaged(true);
         lblSuccess.setVisible(false);
-        lblSuccess.setManaged(false);
     }
 
     private void showSuccess(String message) {
         lblSuccess.setText(message);
         lblSuccess.setVisible(true);
-        lblSuccess.setManaged(true);
         lblError.setVisible(false);
-        lblError.setManaged(false);
     }
 }

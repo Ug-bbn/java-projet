@@ -15,4 +15,6 @@ public interface CommandeDAO {
     void addLigneCommande(int commandeId, LigneCommande ligne);
     List<LigneCommande> getLignesCommande(int commandeId);
     List<LigneCommande> getLignesCommande(int commandeId, Connection conn);
+    long countNonRecues();
+    List<Commande> findAllWithLignes();
 }

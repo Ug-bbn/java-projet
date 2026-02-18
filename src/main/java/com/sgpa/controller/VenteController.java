@@ -3,6 +3,7 @@ package com.sgpa.controller;
 import com.sgpa.model.Medicament;
 import com.sgpa.model.Vente;
 import com.sgpa.service.MedicamentService;
+import com.sgpa.service.ServiceLocator;
 import com.sgpa.service.VenteService;
 import com.sgpa.util.FXUtil;
 import javafx.collections.FXCollections;
@@ -55,8 +56,8 @@ public class VenteController {
     @FXML
     private TableColumn<Vente, Boolean> colOrdonnance;
 
-    private final MedicamentService medicamentService = new MedicamentService();
-    private final VenteService venteService = new VenteService();
+    private final MedicamentService medicamentService = ServiceLocator.getInstance().getMedicamentService();
+    private final VenteService venteService = ServiceLocator.getInstance().getVenteService();
     private final ObservableList<Vente> ventes = FXCollections.observableArrayList();
     private final ObservableList<ArticlePanier> panier = FXCollections.observableArrayList();
 
@@ -67,22 +68,7 @@ public class VenteController {
                 medicamentService.getAllMedicaments());
         cmbMedicament.setItems(medicaments);
 
-        cmbMedicament.setCellFactory(param -> new ListCell<>() {
-            @Override
-            protected void updateItem(Medicament item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null
-                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
-            }
-        });
-        cmbMedicament.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(Medicament item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null
-                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
-            }
-        });
+        FXUtil.setupComboBox(cmbMedicament, m -> m.getNomCommercial() + " - " + m.getPrixPublic() + " \u20ac");
 
         cmbMedicament.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
@@ -100,10 +86,10 @@ public class VenteController {
                 new javafx.beans.property.SimpleIntegerProperty(cd.getValue().quantite).asObject());
         colPanierPrixUnit.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(cd.getValue().prixUnitaire.toPlainString() + " \u20ac"));
-        colPanierPrixUnit.getStyleClass().add("column-align-right");
+        colPanierPrixUnit.setStyle("-fx-alignment: CENTER-RIGHT;");
         colPanierTotal.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(cd.getValue().getTotal().toPlainString() + " \u20ac"));
-        colPanierTotal.getStyleClass().add("column-align-right-bold");
+        colPanierTotal.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
 
         tablePanier.setItems(panier);
         panier.addListener((ListChangeListener<ArticlePanier>) c -> updateTotalLabel());
@@ -224,7 +210,11 @@ public class VenteController {
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
-        FXUtil.showAlert(title, content, type);
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     // Inner class for panier items

@@ -1,6 +1,5 @@
 package com.sgpa.dao.impl;
 
-import com.sgpa.dao.DAOException;
 import com.sgpa.dao.MedicamentDAO;
 import com.sgpa.model.Medicament;
 import com.sgpa.util.DatabaseConnection;
@@ -37,7 +36,6 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation du medicament", e);
-            throw new DAOException("Erreur lors de la creation du medicament", e);
         }
     }
 
@@ -56,7 +54,6 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche du medicament {}", id, e);
-            throw new DAOException("Erreur lors de la recherche du medicament " + id, e);
         }
         return null;
     }
@@ -75,7 +72,6 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des medicaments", e);
-            throw new DAOException("Erreur lors de la recuperation des medicaments", e);
         }
         return liste;
     }
@@ -99,7 +95,6 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour du medicament {}", m.getId(), e);
-            throw new DAOException("Erreur lors de la mise a jour du medicament " + m.getId(), e);
         }
     }
 
@@ -114,8 +109,43 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression du medicament {}", id, e);
-            throw new DAOException("Erreur lors de la suppression du medicament " + id, e);
         }
+    }
+
+    @Override
+    public List<Medicament> findMedicamentsEnAlerteStock() {
+        List<Medicament> liste = new ArrayList<>();
+        String sql = "SELECT m.* FROM medicaments m " +
+                     "LEFT JOIN lots l ON m.id = l.medicament_id " +
+                     "GROUP BY m.id " +
+                     "HAVING COALESCE(SUM(l.quantite_stock), 0) <= m.seuil_min_alerte";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                liste.add(extractMedicament(rs));
+            }
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la recuperation des medicaments en alerte stock", e);
+        }
+        return liste;
+    }
+
+    @Override
+    public long count() {
+        String sql = "SELECT COUNT(*) FROM medicaments";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Erreur lors du comptage des medicaments", e);
+        }
+        return 0;
     }
 
     private Medicament extractMedicament(ResultSet rs) throws SQLException {

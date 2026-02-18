@@ -55,16 +55,7 @@ public class MedicamentService {
     }
 
     public List<Medicament> getMedicamentsEnAlerteStock() {
-        List<Medicament> allMeds = medicamentDAO.findAll();
-        List<Medicament> alertes = new ArrayList<>();
-
-        for (Medicament m : allMeds) {
-            int stockTotal = lotDAO.getStockTotal(m.getId());
-            if (stockTotal <= m.getSeuilMinAlerte()) {
-                alertes.add(m);
-            }
-        }
-        return alertes;
+        return medicamentDAO.findMedicamentsEnAlerteStock();
     }
 
     public List<Lot> getLotsProchesPeremption() {
@@ -72,12 +63,12 @@ public class MedicamentService {
         return lotDAO.findExpiringBefore(dateLimite);
     }
 
-    public List<Lot> getLotsPerimes() {
-        return lotDAO.findExpiringBefore(LocalDate.now());
-    }
-
     public int getStockTotal(int medicamentId) {
         return lotDAO.getStockTotal(medicamentId);
+    }
+
+    public long count() {
+        return medicamentDAO.count();
     }
 
     public void validateMedicament(Medicament medicament) {

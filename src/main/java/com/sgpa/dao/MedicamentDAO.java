@@ -9,4 +9,6 @@ public interface MedicamentDAO {
     List<Medicament> findAll();
     void update(Medicament medicament);
     void delete(int id);
+    List<Medicament> findMedicamentsEnAlerteStock();
+    long count();
 }

@@ -8,7 +8,8 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.LoginController"
       alignment="CENTER" spacing="20"
-      styleClass="login-background">
+      styleClass="login-background"
+      stylesheets="@style-light.css">
 
     <padding>
         <Insets top="50" right="50" bottom="50" left="50"/>
@@ -20,9 +21,9 @@
         <!-- Logo/Titre -->
         <VBox alignment="CENTER" spacing="5">
             <StackPane maxWidth="60" maxHeight="60" minWidth="60" minHeight="60"
-                       styleClass="logo-icon-large">
+                       style="-fx-background-color: #2563eb; -fx-background-radius: 14;">
                 <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H6v-2h4V7h2v4h4v2h-4v4z"
-                         styleClass="logo-svg" scaleX="2.0" scaleY="2.0"/>
+                         style="-fx-fill: white;" scaleX="2.0" scaleY="2.0"/>
             </StackPane>
             <Label text="SGPA" styleClass="login-title"/>
             <Label text="Système de Gestion de Pharmacie" styleClass="login-subtitle"/>
@@ -45,7 +46,7 @@
             </VBox>
 
             <!-- Message d'erreur -->
-            <Label fx:id="lblError" text="" visible="false" managed="false" styleClass="error-label"/>
+            <Label fx:id="lblError" text="" visible="false" styleClass="error-label"/>
 
             <!-- Boutons -->
             <Button text="Se connecter" onAction="#handleLogin" prefWidth="300" styleClass="login-button"/>

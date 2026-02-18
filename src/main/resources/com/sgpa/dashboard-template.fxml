@@ -23,14 +23,14 @@
             </padding>
             <VBox alignment="CENTER" spacing="6">
                 <StackPane maxWidth="40" maxHeight="40" minWidth="40" minHeight="40"
-                           styleClass="logo-icon">
+                           style="-fx-background-color: #2563eb; -fx-background-radius: 10;">
                     <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H6v-2h4V7h2v4h4v2h-4v4z"
-                             styleClass="logo-svg" scaleX="1.4" scaleY="1.4"/>
+                             style="-fx-fill: white;" scaleX="1.4" scaleY="1.4"/>
                 </StackPane>
                 <Label styleClass="logo" text="SGPA" />
             </VBox>
             
-            <Label text="MENU" styleClass="menu-title">
+            <Label text="MENU" style="-fx-text-fill: -fx-secondary-text-color; -fx-padding: 0 0 0 20;">
                 <VBox.margin>
                     <Insets bottom="10.0" top="40.0" />
                 </VBox.margin>
@@ -77,6 +77,14 @@
                     <Label styleClass="regular" text="Commandes" />
                 </HBox>
 
+                <!-- Alertes -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="sidebar-tab">
+                    <StackPane maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0">
+                         <SVGPath content="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" styleClass="icon" />
+                    </StackPane>
+                    <Label styleClass="regular" text="Alertes" />
+                </HBox>
+
                 <!-- Utilisateurs -->
                 <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="sidebar-tab">
                     <StackPane maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0">
@@ -86,28 +94,16 @@
                 </HBox>
             </VBox>
             
-            <VBox alignment="BOTTOM_LEFT" VBox.vgrow="ALWAYS" spacing="8" styleClass="sidebar-profile">
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="📅" styleClass="icon-label"/>
-                    <Label fx:id="lblDate" text=""/>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="👤" styleClass="icon-label"/>
-                    <Label fx:id="lblUtilisateur" text="" styleClass="label-bold"/>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" spacing="8" styleClass="sidebar-tab"
-                      onMouseClicked="#handleDeconnexion">
-                    <Label text="🚪" styleClass="icon-label"/>
-                    <Label text="Déconnexion" styleClass="error-label"/>
-                </HBox>
-            </VBox>
+            <HBox alignment="BOTTOM_LEFT" VBox.vgrow="ALWAYS" style="-fx-padding: 20;">
+                <Label fx:id="lblVersion" text="v1.0" style="-fx-text-fill: -fx-secondary-text-color;"/>
+            </HBox>
         </VBox>
     </left>
     
     <center>
         <StackPane styleClass="background">
              <!-- Top Bar -->
-             <StackPane fx:id="stckTopBar" maxHeight="45.0" minHeight="45.0" StackPane.alignment="TOP_LEFT">
+             <StackPane fx:id="stckTopBar" maxHeight="45.0" minHeight="45.0" StackPane.alignment="TOP_LEFT" style="-fx-background-color: transparent;">
                 <children>
                    <HBox alignment="CENTER_RIGHT" spacing="10.0">
                       <children>
@@ -140,7 +136,7 @@
             </StackPane>
 
             <!-- Content Area -->
-            <StackPane fx:id="contentArea">
+            <StackPane fx:id="contentArea" style="-fx-padding: 0;">
                 <StackPane.margin>
                    <Insets top="45.0" />
                 </StackPane.margin>

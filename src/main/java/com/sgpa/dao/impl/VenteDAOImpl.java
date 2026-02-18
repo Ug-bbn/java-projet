@@ -1,6 +1,5 @@
 package com.sgpa.dao.impl;
 
-import com.sgpa.dao.DAOException;
 import com.sgpa.dao.VenteDAO;
 import com.sgpa.model.Vente;
 import com.sgpa.model.LigneVente;
@@ -21,7 +20,6 @@ public class VenteDAOImpl implements VenteDAO {
             create(vente, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la vente", e);
-            throw new DAOException("Erreur lors de la creation de la vente", e);
         }
     }
 
@@ -42,7 +40,7 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la vente", e);
-            throw new DAOException("Erreur lors de la creation de la vente", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -67,7 +65,6 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de la vente {}", id, e);
-            throw new DAOException("Erreur lors de la recherche de la vente " + id, e);
         }
         return null;
     }
@@ -92,7 +89,6 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des ventes", e);
-            throw new DAOException("Erreur lors de la recuperation des ventes", e);
         }
         return liste;
     }
@@ -108,7 +104,6 @@ public class VenteDAOImpl implements VenteDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression de la vente {}", id, e);
-            throw new DAOException("Erreur lors de la suppression de la vente " + id, e);
         }
     }
 
@@ -118,7 +113,6 @@ public class VenteDAOImpl implements VenteDAO {
             addLigneVente(venteId, ligne, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de vente", e);
-            throw new DAOException("Erreur lors de l'ajout de la ligne de vente", e);
         }
     }
 
@@ -135,7 +129,7 @@ public class VenteDAOImpl implements VenteDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de vente", e);
-            throw new DAOException("Erreur lors de l'ajout de la ligne de vente", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -161,9 +155,28 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de vente {}", venteId, e);
-            throw new DAOException("Erreur lors de la recuperation des lignes de vente " + venteId, e);
         }
         return lignes;
+    }
+
+    @Override
+    public java.math.BigDecimal sumTotalByDate(java.time.LocalDate date) {
+        String sql = "SELECT SUM(total_vente) FROM ventes WHERE date_vente >= ? AND date_vente < ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setTimestamp(1, Timestamp.valueOf(date.atStartOfDay()));
+            stmt.setTimestamp(2, Timestamp.valueOf(date.plusDays(1).atStartOfDay()));
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                java.math.BigDecimal sum = rs.getBigDecimal(1);
+                return sum != null ? sum : java.math.BigDecimal.ZERO;
+            }
+        } catch (SQLException e) {
+            logger.error("Erreur lors du calcul du total des ventes", e);
+        }
+        return java.math.BigDecimal.ZERO;
     }
 
     private Vente extractVente(ResultSet rs) throws SQLException {
@@ -181,7 +194,7 @@ public class VenteDAOImpl implements VenteDAO {
         try {
             vente.setNomsMedicaments(rs.getString("noms_medicaments"));
         } catch (SQLException e) {
-            logger.debug("Colonne noms_medicaments absente du ResultSet", e);
+            // Ignore if column not found
         }
 
         return vente;

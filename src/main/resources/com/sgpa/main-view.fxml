@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.sgpa.controller.MainController" stylesheets="@style-dark.css">
+
+    <!-- Barre de titre -->
+    <top>
+        <VBox styleClass="header">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="SGPA - Système de Gestion de Pharmacie Avancé" styleClass="title">
+                    <font>
+                        <Font name="System Bold" size="24"/>
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Menu latéral -->
+    <left>
+        <VBox styleClass="sidebar" spacing="10" prefWidth="200">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+
+            <Label text="MENU" styleClass="menu-title">
+                <font>
+                    <Font name="System Bold" size="14"/>
+                </font>
+            </Label>
+
+            <Separator/>
+
+            <Button text="📊 Tableau de Bord" onAction="#showDashboard" styleClass="menu-button" maxWidth="Infinity"/>
+            <Button text="💊 Médicaments" onAction="#showMedicaments" styleClass="menu-button" maxWidth="Infinity"/>
+            <Button text="📦 Stock" onAction="#showStock" styleClass="menu-button" maxWidth="Infinity"/>
+            <Button text="💰 Ventes" onAction="#showVentes" styleClass="menu-button" maxWidth="Infinity"/>
+            <Button text="🚚 Commandes" onAction="#showCommandes" styleClass="menu-button" maxWidth="Infinity"/>
+
+            <Separator fx:id="separatorAdmin" managed="false" visible="false"/>
+            <Button fx:id="btnUtilisateurs" text="👥 Utilisateurs" onAction="#showUtilisateurs" styleClass="menu-button" maxWidth="Infinity" managed="false" visible="false"/>
+
+            <!-- Spacer pour pousser le bouton thème en bas -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Separator/>
+
+            <!-- Bouton de basculement de thème -->
+            <Button fx:id="btnToggleTheme" text="☀️ Mode Clair" onAction="#toggleTheme" styleClass="menu-button" maxWidth="Infinity"
+                    style="-fx-background-color: rgba(102, 126, 234, 0.15); -fx-font-weight: bold;"/>
+
+            <Separator/>
+
+            <!-- Profil Utilisateur & Date -->
+            <VBox spacing="8" style="-fx-padding: 10 5;">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="📅" style="-fx-font-size: 16px;"/>
+                    <Label fx:id="lblDate" text="01/01/2026" styleClass="label"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="👤" style="-fx-font-size: 16px;"/>
+                    <Label fx:id="lblUtilisateur" text="Utilisateur" style="-fx-font-weight: bold;"/>
+                </HBox>
+                <Button text="🚪 Déconnexion" onAction="#handleDeconnexion" maxWidth="Infinity" styleClass="button-danger"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- Zone de contenu -->
+    <center>
+        <BorderPane fx:id="contentArea" styleClass="content-area">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+        </BorderPane>
+    </center>
+</BorderPane>

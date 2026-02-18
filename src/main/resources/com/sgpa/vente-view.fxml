@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.sgpa.controller.VenteController"
@@ -16,7 +17,9 @@
 
     <!-- Formulaire de vente -->
     <VBox spacing="10" styleClass="details-panel">
-        <Label text="Nouvelle Vente" styleClass="label-bold"/>
+        <Label text="Nouvelle Vente" styleClass="label-bold">
+            <font><Font name="System Bold" size="15"/></font>
+        </Label>
 
         <HBox spacing="10" alignment="CENTER_LEFT">
             <ComboBox fx:id="cmbMedicament" prefWidth="280" HBox.hgrow="ALWAYS"/>
@@ -26,7 +29,7 @@
         </HBox>
 
         <HBox spacing="15" alignment="CENTER_LEFT">
-            <Label fx:id="lblStockDisponible" text="" styleClass="stock-available"/>
+            <Label fx:id="lblStockDisponible" text="" style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
             <Region HBox.hgrow="ALWAYS"/>
             <CheckBox fx:id="chkOrdonnance" text="Vente sur ordonnance"/>
         </HBox>
@@ -56,10 +59,11 @@
 
     <!-- Historique des ventes -->
     <VBox spacing="10" VBox.vgrow="ALWAYS">
-        <Label text="Historique des Ventes" styleClass="label-bold"/>
+        <Label text="Historique des Ventes" styleClass="label-bold">
+            <font><Font name="System Bold" size="14"/></font>
+        </Label>
 
         <TableView fx:id="tableHistorique" VBox.vgrow="ALWAYS">
-            <placeholder><Label text="Aucune vente enregistrée."/></placeholder>
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                 <TableColumn fx:id="colMedicaments" text="Médicaments" prefWidth="250"/>

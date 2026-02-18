@@ -3,23 +3,19 @@ package com.sgpa.service;
 import com.sgpa.dao.CommandeDAO;
 import com.sgpa.dao.LotDAO;
 import com.sgpa.dao.FournisseurDAO;
-import com.sgpa.dao.MedicamentDAO;
 import com.sgpa.dao.impl.CommandeDAOImpl;
 import com.sgpa.dao.impl.LotDAOImpl;
 import com.sgpa.dao.impl.FournisseurDAOImpl;
-import com.sgpa.dao.impl.MedicamentDAOImpl;
 import com.sgpa.model.Commande;
 import com.sgpa.model.LigneCommande;
 import com.sgpa.model.Lot;
 import com.sgpa.model.Fournisseur;
-import com.sgpa.model.Medicament;
 import com.sgpa.model.StatutCommande;
 import com.sgpa.util.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -29,13 +25,17 @@ public class CommandeService {
     private CommandeDAO commandeDAO;
     private LotDAO lotDAO;
     private FournisseurDAO fournisseurDAO;
-    private MedicamentDAO medicamentDAO;
 
     public CommandeService() {
         this.commandeDAO = new CommandeDAOImpl();
         this.lotDAO = new LotDAOImpl();
         this.fournisseurDAO = new FournisseurDAOImpl();
-        this.medicamentDAO = new MedicamentDAOImpl();
+    }
+
+    public CommandeService(CommandeDAO commandeDAO, LotDAO lotDAO, FournisseurDAO fournisseurDAO) {
+        this.commandeDAO = commandeDAO;
+        this.lotDAO = lotDAO;
+        this.fournisseurDAO = fournisseurDAO;
     }
 
     public void creerCommande(int fournisseurId, List<LigneCommande> lignes) {
@@ -49,7 +49,7 @@ public class CommandeService {
         logger.info("Commande {} creee avec succes", commande.getId());
     }
 
-    public void recevoirCommande(int commandeId, LocalDate datePeremption) {
+    public void recevoirCommande(int commandeId, String numeroLot, LocalDate datePeremption) {
         Commande commande = commandeDAO.findById(commandeId);
         if (commande == null) {
             throw new IllegalArgumentException("Commande " + commandeId + " introuvable");
@@ -59,25 +59,17 @@ public class CommandeService {
             throw new IllegalStateException("La commande " + commandeId + " a deja ete recue");
         }
 
-        String dateSuffix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            conn.setAutoCommit(false);
+        try {
+            Connection conn = DatabaseConnection.getConnection();
             try {
+                conn.setAutoCommit(false);
+
                 List<LigneCommande> lignes = commandeDAO.getLignesCommande(commandeId, conn);
-                String firstLotNum = null;
 
                 for (LigneCommande ligne : lignes) {
-                    Medicament med = medicamentDAO.findById(ligne.getMedicamentId());
-                    String prefix = med.getNomCommercial()
-                            .substring(0, Math.min(3, med.getNomCommercial().length()))
-                            .toUpperCase();
-                    String lotNum = "LOT-" + prefix + "-" + dateSuffix;
-                    if (firstLotNum == null) firstLotNum = lotNum;
-
                     Lot lot = new Lot(
                             ligne.getMedicamentId(),
-                            lotNum,
+                            numeroLot + "-" + ligne.getMedicamentId(),
                             ligne.getQuantite(),
                             datePeremption,
                             ligne.getPrixUnitaire());
@@ -85,7 +77,7 @@ public class CommandeService {
                 }
 
                 commande.setStatut(StatutCommande.RECUE);
-                commande.setNumeroLot(firstLotNum);
+                commande.setNumeroLot(numeroLot);
                 commandeDAO.update(commande, conn);
 
                 conn.commit();
@@ -94,6 +86,9 @@ public class CommandeService {
                 conn.rollback();
                 logger.error("Erreur lors de la reception de la commande {}, rollback effectue", commandeId, e);
                 throw new RuntimeException("Erreur lors de la reception de la commande", e);
+            } finally {
+                conn.setAutoCommit(true);
+                conn.close();
             }
         } catch (SQLException e) {
             logger.error("Erreur de connexion lors de la reception de la commande {}", commandeId, e);
@@ -102,7 +97,11 @@ public class CommandeService {
     }
 
     public List<Commande> getAllCommandes() {
-        return commandeDAO.findAll();
+        return commandeDAO.findAllWithLignes();
+    }
+
+    public long countEnAttente() {
+        return commandeDAO.countNonRecues();
     }
 
     public List<LigneCommande> getLignesCommande(int commandeId) {

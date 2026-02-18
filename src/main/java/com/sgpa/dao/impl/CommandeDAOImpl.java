@@ -1,7 +1,6 @@
 package com.sgpa.dao.impl;
 
 import com.sgpa.dao.CommandeDAO;
-import com.sgpa.dao.DAOException;
 import com.sgpa.model.Commande;
 import com.sgpa.model.LigneCommande;
 import com.sgpa.model.StatutCommande;
@@ -36,7 +35,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la commande", e);
-            throw new DAOException("Erreur lors de la creation de la commande", e);
         }
     }
 
@@ -55,7 +53,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de la commande {}", id, e);
-            throw new DAOException("Erreur lors de la recherche de la commande " + id, e);
         }
         return null;
     }
@@ -74,7 +71,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des commandes", e);
-            throw new DAOException("Erreur lors de la recuperation des commandes", e);
         }
         return liste;
     }
@@ -85,7 +81,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             update(cmd, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
-            throw new DAOException("Erreur lors de la mise a jour de la commande " + cmd.getId(), e);
         }
     }
 
@@ -103,7 +98,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
-            throw new DAOException("Erreur lors de la mise a jour de la commande " + cmd.getId(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -118,7 +113,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression de la commande {}", id, e);
-            throw new DAOException("Erreur lors de la suppression de la commande " + id, e);
         }
     }
 
@@ -137,7 +131,6 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de commande", e);
-            throw new DAOException("Erreur lors de l'ajout de la ligne de commande", e);
         }
     }
 
@@ -147,7 +140,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             return getLignesCommande(commandeId, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
-            throw new DAOException("Erreur lors de la recuperation des lignes de commande " + commandeId, e);
+            return new ArrayList<>();
         }
     }
 
@@ -171,9 +164,61 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
-            throw new DAOException("Erreur lors de la recuperation des lignes de commande " + commandeId, e);
+            throw new RuntimeException(e);
         }
         return lignes;
+    }
+
+    @Override
+    public long countNonRecues() {
+        String sql = "SELECT COUNT(*) FROM commandes WHERE statut IS NULL OR statut != 'RECUE'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Erreur lors du comptage des commandes en attente", e);
+        }
+        return 0;
+    }
+
+    @Override
+    public List<Commande> findAllWithLignes() {
+        java.util.Map<Integer, Commande> map = new java.util.LinkedHashMap<>();
+        String sql = "SELECT c.*, lc.id as lc_id, lc.medicament_id, lc.quantite, lc.prix_unitaire " +
+                     "FROM commandes c " +
+                     "LEFT JOIN lignes_commande lc ON c.id = lc.commande_id " +
+                     "ORDER BY c.date_commande DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                Commande cmd = map.get(id);
+                if (cmd == null) {
+                    cmd = extractCommande(rs);
+                    map.put(id, cmd);
+                }
+
+                int lcId = rs.getInt("lc_id");
+                if (!rs.wasNull()) {
+                    LigneCommande ligne = new LigneCommande();
+                    ligne.setId(lcId);
+                    ligne.setCommandeId(id);
+                    ligne.setMedicamentId(rs.getInt("medicament_id"));
+                    ligne.setQuantite(rs.getInt("quantite"));
+                    ligne.setPrixUnitaire(rs.getBigDecimal("prix_unitaire"));
+                    cmd.getLignes().add(ligne);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la recuperation des commandes avec lignes", e);
+        }
+        return new ArrayList<>(map.values());
     }
 
     private Commande extractCommande(ResultSet rs) throws SQLException {

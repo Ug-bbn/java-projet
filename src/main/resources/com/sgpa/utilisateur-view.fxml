@@ -16,7 +16,6 @@
     
     <!-- Tableau des utilisateurs -->
     <TableView fx:id="tableUtilisateurs" VBox.vgrow="ALWAYS">
-        <placeholder><Label text="Aucun utilisateur enregistré."/></placeholder>
         <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
             <TableColumn fx:id="colUsername" text="Username" prefWidth="150"/>
@@ -60,12 +59,12 @@
         </GridPane>
         
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Button text="Créer" onAction="#handleCreate" styleClass="button-primary"/>
+            <Button text="Creer" onAction="#handleCreate" styleClass="button-primary"/>
             <Button text="Modifier" onAction="#handleUpdate" styleClass="button-success"/>
             <Button text="Supprimer" onAction="#handleDelete" styleClass="button-danger"/>
-            <Button text="Réinitialiser" onAction="#handleClear" styleClass="button"/>
+            <Button text="Reinitialiser" onAction="#handleClear"/>
         </HBox>
         
-        <Label fx:id="lblMessage" styleClass="message-label" visible="false" managed="false"/>
+        <Label fx:id="lblMessage" styleClass="message-label" visible="false"/>
     </VBox>
 </VBox>

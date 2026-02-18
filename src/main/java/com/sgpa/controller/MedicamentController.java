@@ -2,11 +2,12 @@ package com.sgpa.controller;
 
 import com.sgpa.model.Medicament;
 import com.sgpa.service.MedicamentService;
-import com.sgpa.util.FXUtil;
+import com.sgpa.service.ServiceLocator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.math.BigDecimal;
 
@@ -31,7 +32,7 @@ public class MedicamentController {
     @FXML private CheckBox chkOrdonnance;
     @FXML private TextField txtSeuil;
 
-    private MedicamentService service = new MedicamentService();
+    private MedicamentService service = ServiceLocator.getInstance().getMedicamentService();
     private ObservableList<Medicament> medicaments = FXCollections.observableArrayList();
     private Medicament selectedMedicament;
     
@@ -54,23 +55,14 @@ public class MedicamentController {
     @FXML
     public void initialize() {
         // Configuration des colonnes
-        colId.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getId()).asObject());
-        colNom.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleStringProperty(cd.getValue().getNomCommercial()));
-        colPrincipe.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleStringProperty(cd.getValue().getPrincipeActif()));
-        colForme.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleStringProperty(cd.getValue().getFormeGalenique()));
-        colDosage.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleStringProperty(cd.getValue().getDosage()));
-        colPrix.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleDoubleProperty(
-                        cd.getValue().getPrixPublic() != null ? cd.getValue().getPrixPublic().doubleValue() : 0).asObject());
-        colOrdonnance.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleBooleanProperty(cd.getValue().isNecessiteOrdonnance()).asObject());
-        colSeuil.setCellValueFactory(cd ->
-                new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getSeuilMinAlerte()).asObject());
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNom.setCellValueFactory(new PropertyValueFactory<>("nomCommercial"));
+        colPrincipe.setCellValueFactory(new PropertyValueFactory<>("principeActif"));
+        colForme.setCellValueFactory(new PropertyValueFactory<>("formeGalenique"));
+        colDosage.setCellValueFactory(new PropertyValueFactory<>("dosage"));
+        colPrix.setCellValueFactory(new PropertyValueFactory<>("prixPublic"));
+        colOrdonnance.setCellValueFactory(new PropertyValueFactory<>("necessiteOrdonnance"));
+        colSeuil.setCellValueFactory(new PropertyValueFactory<>("seuilMinAlerte"));
         
         // Initialiser le ComboBox des formes
         cmbForme.setItems(FORMES_GALENIQUES);
@@ -206,7 +198,7 @@ public class MedicamentController {
             service.supprimerMedicament(selectedMedicament.getId());
             chargerMedicaments();
             viderChamps();
-            showAlert("Succès", "Médicament supprimé avec succès !", Alert.AlertType.INFORMATION);
+            showAlert("Succes", "Medicament supprime avec succes !", Alert.AlertType.INFORMATION);
         });
     }
 
@@ -241,6 +233,10 @@ public class MedicamentController {
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
-        FXUtil.showAlert(title, content, type);
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

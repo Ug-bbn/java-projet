@@ -3,14 +3,18 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.StockController" spacing="15">
 
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Label text="Stock" styleClass="section-title"/>
-        <Button text="? Légende" styleClass="button, button-small"
-                onAction="#handleShowLegende"/>
+        <Label text="ℹ️" style="-fx-font-size: 16px; -fx-cursor: hand;">
+            <tooltip>
+                <Tooltip text="🟠 Orange = Stock Faible (quantité totale &lt; seuil)&#10;🟡 Jaune = Périme bientôt (&lt; 3 mois)"/>
+            </tooltip>
+        </Label>
         <Region HBox.hgrow="ALWAYS"/>
         <ToggleButton fx:id="btnArchives" text="Voir Archives" onAction="#handleToggleArchives" styleClass="button"/>
         <Button text="Actualiser" onAction="#handleActualiser" styleClass="button"/>
@@ -20,10 +24,13 @@
 
     <!-- Liste des lots -->
     <VBox spacing="10" VBox.vgrow="ALWAYS">
-        <Label text="Tous les Lots en Stock" styleClass="label-bold"/>
+        <Label text="Tous les Lots en Stock" styleClass="label-bold">
+            <font>
+                <Font name="System Bold" size="14"/>
+            </font>
+        </Label>
 
         <TableView fx:id="tableLots" VBox.vgrow="ALWAYS">
-            <placeholder><Label text="Aucun lot en stock."/></placeholder>
             <columns>
                 <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
                 <TableColumn fx:id="colMedicament" text="Médicament" prefWidth="150"/>

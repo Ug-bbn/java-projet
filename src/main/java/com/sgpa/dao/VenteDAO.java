@@ -14,4 +14,5 @@ public interface VenteDAO {
     void addLigneVente(int venteId, LigneVente ligne);
     void addLigneVente(int venteId, LigneVente ligne, Connection conn);
     List<LigneVente> getLignesVente(int venteId);
+    java.math.BigDecimal sumTotalByDate(java.time.LocalDate date);
 }

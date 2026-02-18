@@ -1,11 +1,12 @@
 package com.sgpa.controller;
 
+import com.sgpa.MainApp;
 import com.sgpa.model.Role;
 import com.sgpa.model.Utilisateur;
 import com.sgpa.util.FXUtil;
 import com.sgpa.util.LocalUserData;
 import com.sgpa.util.SessionManager;
-import javafx.application.Application;
+import com.sgpa.util.Theme;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,21 +15,13 @@ import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class DashboardTemplateController implements Initializable {
-
-    private static final Logger logger = LoggerFactory.getLogger(DashboardTemplateController.class);
 
     @FXML
     private BorderPane root;
@@ -40,10 +33,7 @@ public class DashboardTemplateController implements Initializable {
     private VBox vbxMenuNavigation, vbxMenuTabs;
 
     @FXML
-    private Label lblDate;
-
-    @FXML
-    private Label lblUtilisateur;
+    private Label lblVersion;
 
     @FXML
     private StackPane contentArea;
@@ -52,26 +42,25 @@ public class DashboardTemplateController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Afficher la date du jour
-        lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        lblVersion.setText("v1.0"); // Or retrieve dynamically
 
-        // Afficher l'utilisateur connecté
-        Utilisateur user = SessionManager.getInstance().getUtilisateurConnecte();
-        if (user != null) {
-            lblUtilisateur.setText(user.getNomComplet());
-        }
+        // Defer stage access until scene is available
+        // Platform.runLater(() -> {
+        // stage = (Stage) root.getScene().getWindow();
+        // FXUtil.movable(stage, stckTopBar);
+        // FXUtil.windowActions(stage, stckMin, stckClose);
+        // });
 
-        // Load default view
+        // Load default view (e.g. Home or Commande)
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sgpa/dashboard-view.fxml"));
-            Parent view = loader.load();
+            Parent view = FXMLLoader.load(getClass().getResource("/com/sgpa/dashboard-view.fxml"));
             contentArea.getChildren().add(view);
             // Also mark the first menu item as selected
             if (!vbxMenuNavigation.getChildren().isEmpty()) {
                 vbxMenuNavigation.getChildren().get(0).getStyleClass().add("selected");
             }
         } catch (IOException e) {
-            logger.error("Erreur de navigation", e);
+            e.printStackTrace();
         }
 
         setupNavigation();
@@ -84,48 +73,68 @@ public class DashboardTemplateController implements Initializable {
     }
 
     private void setupNavigation() {
-        // Index mapping (après suppression d'Alertes):
+        // Map navigation items to views.
+        // Index mapping:
         // 0: Tableau de bord
         // 1: Médicaments
         // 2: Ventes
         // 3: Stock
         // 4: Commandes
-        // 5: Utilisateurs (ADMIN only)
+        // 5: Alertes
+        // 6: Utilisateurs (ADMIN only)
 
+        boolean isAdmin = false;
         Utilisateur user = SessionManager.getInstance().getUtilisateurConnecte();
-        boolean isAdmin = user != null && Role.ADMIN.equals(user.getRole());
+        if (user != null && Role.ADMIN.equals(user.getRole())) {
+            isAdmin = true;
+        }
 
-        String[] views = {
-            "/com/sgpa/dashboard-view.fxml",
-            "/com/sgpa/medicament-view.fxml",
-            "/com/sgpa/vente-view.fxml",
-            "/com/sgpa/stock-view.fxml",
-            "/com/sgpa/commande-view.fxml",
-            "/com/sgpa/utilisateur-view.fxml"
-        };
+        int index = 0;
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/dashboard-view.fxml", nav));
+        }
 
-        for (int i = 0; i < vbxMenuNavigation.getChildren().size() && i < views.length; i++) {
-            Node nav = vbxMenuNavigation.getChildren().get(i);
-            String viewPath = views[i];
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/medicament-view.fxml", nav));
+        }
 
-            // Utilisateurs: ADMIN only
-            if (i == 5) {
-                if (isAdmin) {
-                    nav.setOnMouseClicked(e -> navigateTo(viewPath, nav));
-                } else {
-                    nav.setVisible(false);
-                    nav.setManaged(false);
-                }
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/vente-view.fxml", nav));
+        }
+
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/stock-view.fxml", nav));
+        }
+
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/commande-view.fxml", nav));
+        }
+
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/alerte-view.fxml", nav));
+        }
+
+        // Utilisateurs: visible only for ADMIN
+        if (vbxMenuNavigation.getChildren().size() > index) {
+            Node nav = vbxMenuNavigation.getChildren().get(index++);
+            if (isAdmin) {
+                nav.setOnMouseClicked(e -> navigateTo("/com/sgpa/utilisateur-view.fxml", nav));
             } else {
-                nav.setOnMouseClicked(e -> navigateTo(viewPath, nav));
+                nav.setVisible(false);
+                nav.setManaged(false);
             }
         }
     }
 
     private void navigateTo(String fxmlPath, Node navNode) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
+            Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
             FXUtil.viewSwitch(contentArea, view);
 
             // Update selected style
@@ -133,27 +142,7 @@ public class DashboardTemplateController implements Initializable {
             navNode.getStyleClass().add("selected");
 
         } catch (IOException e) {
-            logger.error("Erreur de navigation", e);
-        }
-    }
-
-    @FXML
-    private void handleDeconnexion() {
-        SessionManager.getInstance().logout();
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sgpa/login-view.fxml"));
-            Scene scene = new Scene(loader.load());
-            scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
-            Stage currentStage = (Stage) root.getScene().getWindow();
-            currentStage.close();
-
-            Stage loginStage = new Stage();
-            loginStage.setTitle("Connexion - SGPA");
-            loginStage.setScene(scene);
-            loginStage.setMaximized(true);
-            loginStage.show();
-        } catch (IOException e) {
-            logger.error("Erreur de navigation", e);
+            e.printStackTrace();
         }
     }
 
@@ -182,19 +171,20 @@ public class DashboardTemplateController implements Initializable {
 
     @FXML
     private void handleThemeSwitch() {
+        // Toggle theme logic
         boolean isDark = Boolean.parseBoolean(LocalUserData.getProperty("dark_mode").orElse("false"));
         boolean newMode = !isDark;
         LocalUserData.setProperty("dark_mode", String.valueOf(newMode));
 
-        // Switch AtlantaFX base theme (User Agent Stylesheet)
-        if (newMode) {
-            Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerDark().getUserAgentStylesheet());
-        } else {
-            Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
-        }
+        String themeOrdinal = LocalUserData.getProperty("theme").orElse("0");
+        Theme theme = Theme.values()[Integer.parseInt(themeOrdinal)];
 
-        // Reload app CSS on scene
+        Theme.setCurrentTheme(theme, newMode);
+
+        // Reload CSS on scene
         root.getScene().getStylesheets().clear();
         root.getScene().getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
+        root.getScene().getStylesheets().addAll(theme.getThemeFile(),
+                newMode ? theme.getDarkFile() : theme.getLightFile());
     }
 }

@@ -121,6 +121,10 @@ public class VenteService {
         return venteDAO.findAll();
     }
 
+    public BigDecimal getTotalVentesDuJour() {
+        return venteDAO.sumTotalByDate(java.time.LocalDate.now());
+    }
+
     public Vente getVenteAvecDetails(int venteId) {
         Vente vente = venteDAO.findById(venteId);
         if (vente != null) {
