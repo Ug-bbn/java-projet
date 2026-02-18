@@ -1,6 +1,7 @@
 package com.sgpa.service;
 
 import com.sgpa.model.Commande;
+import com.sgpa.model.Lot;
 import com.sgpa.model.Medicament;
 import com.sgpa.model.StatutCommande;
 import com.sgpa.model.Vente;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardService {
@@ -47,15 +49,38 @@ public class DashboardService {
                 .count();
     }
 
-    public MedicamentService getMedicamentService() {
-        return medicamentService;
+    public List<Vente> getHistoriqueVentes() {
+        return venteService.getHistoriqueVentes();
     }
 
-    public VenteService getVenteService() {
-        return venteService;
+    public List<Medicament> getAllMedicaments() {
+        return medicamentService.getAllMedicaments();
     }
 
-    public CommandeService getCommandeService() {
-        return commandeService;
+    public int getStockTotal(int medicamentId) {
+        return medicamentService.getStockTotal(medicamentId);
+    }
+
+    public List<Medicament> getMedicamentsEnAlerteStock() {
+        return medicamentService.getMedicamentsEnAlerteStock();
+    }
+
+    public List<Lot> getLotsPerimes() {
+        return medicamentService.getLotsPerimes();
+    }
+
+    /**
+     * Returns medicaments with stock exactly 0 (subset of alert stock).
+     * Avoids the N+1 re-query by using getStockTotal only once per medicament.
+     */
+    public List<Medicament> getMedicamentsStockEpuise() {
+        List<Medicament> alertes = medicamentService.getMedicamentsEnAlerteStock();
+        List<Medicament> epuises = new ArrayList<>();
+        for (Medicament m : alertes) {
+            if (medicamentService.getStockTotal(m.getId()) == 0) {
+                epuises.add(m);
+            }
+        }
+        return epuises;
     }
 }

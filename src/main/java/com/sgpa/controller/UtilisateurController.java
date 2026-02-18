@@ -31,7 +31,7 @@ public class UtilisateurController {
     private ObservableList<Utilisateur> utilisateurs = FXCollections.observableArrayList();
 
     @FXML
-    private void initialize() {
+    public void initialize() {
         colId.setCellValueFactory(
                 cellData -> new javafx.beans.property.SimpleIntegerProperty(cellData.getValue().getId()).asObject());
         colUsername.setCellValueFactory(
@@ -87,18 +87,18 @@ public class UtilisateurController {
         String role = cmbRole.getValue();
 
         if (utilisateurService.usernameExists(username)) {
-            showError("Ce nom d'utilisateur existe deja.");
+            showError("Ce nom d'utilisateur existe déjà.");
             return;
         }
 
         boolean success = utilisateurService.createUtilisateur(username, password, nom, prenom, role);
 
         if (success) {
-            showSuccess("Utilisateur cree avec succes !");
+            showSuccess("Utilisateur créé avec succès !");
             loadUtilisateurs();
             handleClear();
         } else {
-            showError("Erreur lors de la creation de l'utilisateur.");
+            showError("Erreur lors de la création de l'utilisateur.");
         }
     }
 
@@ -106,7 +106,7 @@ public class UtilisateurController {
     private void handleUpdate() {
         Utilisateur selected = tableUtilisateurs.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showError("Veuillez selectionner un utilisateur a modifier.");
+            showError("Veuillez sélectionner un utilisateur à modifier.");
             return;
         }
 
@@ -122,7 +122,7 @@ public class UtilisateurController {
         String password = txtPassword.getText();
         utilisateurService.updateUtilisateur(selected, password.isEmpty() ? null : password);
 
-        showSuccess("Utilisateur modifie avec succes !");
+        showSuccess("Utilisateur modifié avec succès !");
         loadUtilisateurs();
         handleClear();
     }
@@ -131,7 +131,7 @@ public class UtilisateurController {
     private void handleDelete() {
         Utilisateur selected = tableUtilisateurs.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showError("Veuillez selectionner un utilisateur a supprimer.");
+            showError("Veuillez sélectionner un utilisateur à supprimer.");
             return;
         }
 
@@ -142,7 +142,7 @@ public class UtilisateurController {
 
         alert.showAndWait().filter(response -> response == ButtonType.OK).ifPresent(response -> {
             utilisateurService.deleteUtilisateur(selected.getId());
-            showSuccess("Utilisateur supprime avec succes !");
+            showSuccess("Utilisateur supprimé avec succès !");
             loadUtilisateurs();
             handleClear();
         });
@@ -157,6 +157,7 @@ public class UtilisateurController {
         cmbRole.setValue("USER");
         tableUtilisateurs.getSelectionModel().clearSelection();
         lblMessage.setVisible(false);
+        lblMessage.setManaged(false);
     }
 
     private boolean validateForm() {
@@ -169,11 +170,11 @@ public class UtilisateurController {
 
         if (tableUtilisateurs.getSelectionModel().getSelectedItem() == null) {
             if (txtPassword.getText().isEmpty()) {
-                showError("Le mot de passe est obligatoire pour creer un utilisateur.");
+                showError("Le mot de passe est obligatoire pour créer un utilisateur.");
                 return false;
             }
             if (txtPassword.getText().length() < 4) {
-                showError("Le mot de passe doit contenir au moins 4 caracteres.");
+                showError("Le mot de passe doit contenir au moins 4 caractères.");
                 return false;
             }
         }
@@ -183,13 +184,17 @@ public class UtilisateurController {
 
     private void showError(String message) {
         lblMessage.setText(message);
-        lblMessage.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        lblMessage.getStyleClass().removeAll("message-success", "message-error");
+        lblMessage.getStyleClass().add("message-error");
         lblMessage.setVisible(true);
+        lblMessage.setManaged(true);
     }
 
     private void showSuccess(String message) {
         lblMessage.setText(message);
-        lblMessage.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+        lblMessage.getStyleClass().removeAll("message-success", "message-error");
+        lblMessage.getStyleClass().add("message-success");
         lblMessage.setVisible(true);
+        lblMessage.setManaged(true);
     }
 }

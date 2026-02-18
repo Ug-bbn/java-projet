@@ -1,5 +1,6 @@
 package com.sgpa.dao.impl;
 
+import com.sgpa.dao.DAOException;
 import com.sgpa.dao.MedicamentDAO;
 import com.sgpa.model.Medicament;
 import com.sgpa.util.DatabaseConnection;
@@ -36,6 +37,7 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation du medicament", e);
+            throw new DAOException("Erreur lors de la creation du medicament", e);
         }
     }
 
@@ -54,6 +56,7 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche du medicament {}", id, e);
+            throw new DAOException("Erreur lors de la recherche du medicament " + id, e);
         }
         return null;
     }
@@ -72,6 +75,7 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des medicaments", e);
+            throw new DAOException("Erreur lors de la recuperation des medicaments", e);
         }
         return liste;
     }
@@ -95,6 +99,7 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour du medicament {}", m.getId(), e);
+            throw new DAOException("Erreur lors de la mise a jour du medicament " + m.getId(), e);
         }
     }
 
@@ -109,6 +114,7 @@ public class MedicamentDAOImpl implements MedicamentDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression du medicament {}", id, e);
+            throw new DAOException("Erreur lors de la suppression du medicament " + id, e);
         }
     }
 

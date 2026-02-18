@@ -5,6 +5,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.util.Arrays;
@@ -32,7 +34,7 @@ public class FXUtil {
 
     public static void windowActions(Stage stage, Node min, Node close) {
         min.setOnMouseClicked(e -> stage.setIconified(true));
-        close.setOnMouseClicked(e -> System.exit(0));
+        close.setOnMouseClicked(e -> Platform.exit());
     }
 
     public static void resizable(Stage stage) {
@@ -51,5 +53,13 @@ public class FXUtil {
     public static void viewSwitch(Pane contentArea, Node newView) {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(newView);
+    }
+
+    public static void showAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

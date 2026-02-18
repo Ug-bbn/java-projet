@@ -12,9 +12,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import com.sgpa.util.FXUtil;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandeController {
 
@@ -60,7 +64,7 @@ public class CommandeController {
     @FXML
     private TableColumn<Commande, Integer> colId;
     @FXML
-    private TableColumn<Commande, String> colNumeroLot;
+    private TableColumn<Commande, String> colMedicaments;
     @FXML
     private TableColumn<Commande, String> colFournisseur;
     @FXML
@@ -78,9 +82,12 @@ public class CommandeController {
     private final ObservableList<Commande> commandes = FXCollections.observableArrayList();
     private final ObservableList<LigneCommande> articlesEnCours = FXCollections.observableArrayList();
 
-    // Cached lists to avoid querying DB on every cell render
+    // Cached data to avoid querying DB on every cell render
     private java.util.List<Fournisseur> fournisseurCache;
     private java.util.List<Medicament> medicamentCache;
+    private final Map<Integer, Integer> lignesCountCache = new HashMap<>();
+    private final Map<Integer, BigDecimal> lignesTotalCache = new HashMap<>();
+    private final Map<Integer, String> lignesMedsCache = new HashMap<>();
 
     // ========================================================
     // INITIALISATION
@@ -103,9 +110,9 @@ public class CommandeController {
         colId.setCellValueFactory(
                 cd -> new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getId()).asObject());
 
-        colNumeroLot.setCellValueFactory(cd ->
+        colMedicaments.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(
-                        cd.getValue().getNumeroLot() != null ? cd.getValue().getNumeroLot() : ""));
+                        lignesMedsCache.getOrDefault(cd.getValue().getId(), "")));
 
         colFournisseur.setCellValueFactory(cd -> {
             int fid = cd.getValue().getFournisseurId();
@@ -135,7 +142,7 @@ public class CommandeController {
                     String upper = item.toUpperCase();
                     if (upper.contains("EN COURS") || upper.contains("ATTENTE")) {
                         lbl.getStyleClass().add("badge-warning");
-                    } else if (upper.contains("LIVR") || upper.contains("VALID")) {
+                    } else if (upper.contains("LIVR") || upper.contains("VALID") || upper.contains("RECUE")) {
                         lbl.getStyleClass().add("badge-success");
                     } else {
                         lbl.getStyleClass().add("badge-danger");
@@ -147,18 +154,15 @@ public class CommandeController {
         });
 
         colNbArticles.setCellValueFactory(cd -> {
-            int count = commandeService.getLignesCommande(cd.getValue().getId()).size();
+            int count = lignesCountCache.getOrDefault(cd.getValue().getId(), 0);
             return new javafx.beans.property.SimpleIntegerProperty(count).asObject();
         });
 
         colTotal.setCellValueFactory(cd -> {
-            java.util.List<LigneCommande> lignes = commandeService.getLignesCommande(cd.getValue().getId());
-            BigDecimal total = lignes.stream()
-                    .map(LigneCommande::getTotal)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal total = lignesTotalCache.getOrDefault(cd.getValue().getId(), BigDecimal.ZERO);
             return new javafx.beans.property.SimpleStringProperty(total.toPlainString() + " €");
         });
-        colTotal.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+        colTotal.getStyleClass().add("column-align-right-bold");
 
         // --- Articles table columns ---
         colArticleMedicament.setCellValueFactory(cd -> {
@@ -184,11 +188,11 @@ public class CommandeController {
 
         colArticlePrix.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(
                 cd.getValue().getPrixUnitaire().toPlainString() + " €"));
-        colArticlePrix.setStyle("-fx-alignment: CENTER-RIGHT;");
+        colArticlePrix.getStyleClass().add("column-align-right");
 
         colArticleTotal.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(
                 cd.getValue().getTotal().toPlainString() + " €"));
-        colArticleTotal.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+        colArticleTotal.getStyleClass().add("column-align-right-bold");
 
         tableArticles.setItems(articlesEnCours);
 
@@ -311,10 +315,10 @@ public class CommandeController {
             return;
         }
 
-        // Dialog to input lot number and expiry date
-        Dialog<javafx.util.Pair<String, LocalDate>> dialog = new Dialog<>();
+        // Dialog to input expiry date (lot number is auto-generated)
+        Dialog<LocalDate> dialog = new Dialog<>();
         dialog.setTitle("R\u00e9ception de commande");
-        dialog.setHeaderText("Commande #" + selected.getId() + " - Saisir les informations du lot");
+        dialog.setHeaderText("Commande #" + selected.getId() + " - Date de p\u00e9remption du lot");
 
         ButtonType btnValider = new ButtonType("Valider", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(btnValider, ButtonType.CANCEL);
@@ -324,40 +328,24 @@ public class CommandeController {
         grid.setVgap(10);
         grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
 
-        TextField txtNumeroLot = new TextField();
-        txtNumeroLot.setPromptText("Ex: LOT-2026-001");
         DatePicker dpPeremption = new DatePicker(LocalDate.now().plusYears(1));
 
-        grid.add(new Label("Num\u00e9ro de lot:"), 0, 0);
-        grid.add(txtNumeroLot, 1, 0);
-        grid.add(new Label("Date de p\u00e9remption:"), 0, 1);
-        grid.add(dpPeremption, 1, 1);
+        grid.add(new Label("Date de p\u00e9remption:"), 0, 0);
+        grid.add(dpPeremption, 1, 0);
 
         dialog.getDialogPane().setContent(grid);
-        txtNumeroLot.requestFocus();
+        dpPeremption.requestFocus();
 
-        dialog.setResultConverter(btn -> {
-            if (btn == btnValider) {
-                return new javafx.util.Pair<>(txtNumeroLot.getText().trim(), dpPeremption.getValue());
-            }
-            return null;
-        });
+        dialog.setResultConverter(btn -> btn == btnValider ? dpPeremption.getValue() : null);
 
-        dialog.showAndWait().ifPresent(result -> {
-            String numeroLot = result.getKey();
-            LocalDate datePeremption = result.getValue();
-
-            if (numeroLot.isEmpty()) {
-                showAlert("Erreur", "Le num\u00e9ro de lot est obligatoire.", Alert.AlertType.WARNING);
-                return;
-            }
+        dialog.showAndWait().ifPresent(datePeremption -> {
             if (datePeremption == null || datePeremption.isBefore(LocalDate.now())) {
                 showAlert("Erreur", "La date de p\u00e9remption doit \u00eatre dans le futur.", Alert.AlertType.WARNING);
                 return;
             }
 
             try {
-                commandeService.recevoirCommande(selected.getId(), numeroLot, datePeremption);
+                commandeService.recevoirCommande(selected.getId(), datePeremption);
                 showAlert("Succ\u00e8s", "Commande #" + selected.getId() + " r\u00e9ceptionn\u00e9e avec succ\u00e8s !\nLots cr\u00e9\u00e9s et stock mis \u00e0 jour.", Alert.AlertType.INFORMATION);
                 chargerCommandes();
             } catch (Exception e) {
@@ -481,7 +469,7 @@ public class CommandeController {
             protected void updateItem(Medicament item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null
-                        : item.getNomCommercial() + " (" + item.getDosage() + ")");
+                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
             }
         });
         cmbMedicament.setButtonCell(new ListCell<>() {
@@ -489,14 +477,37 @@ public class CommandeController {
             protected void updateItem(Medicament item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null
-                        : item.getNomCommercial() + " (" + item.getDosage() + ")");
+                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
             }
         });
     }
 
     private void chargerCommandes() {
         commandes.clear();
-        commandes.addAll(commandeService.getAllCommandes());
+        lignesCountCache.clear();
+        lignesTotalCache.clear();
+        lignesMedsCache.clear();
+
+        java.util.List<Commande> allCommandes = commandeService.getAllCommandes();
+        for (Commande cmd : allCommandes) {
+            java.util.List<LigneCommande> lignes = commandeService.getLignesCommande(cmd.getId());
+            lignesCountCache.put(cmd.getId(), lignes.size());
+            BigDecimal total = lignes.stream()
+                    .map(LigneCommande::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            lignesTotalCache.put(cmd.getId(), total);
+
+            String medsNames = lignes.stream()
+                    .map(l -> medicamentCache.stream()
+                            .filter(m -> m.getId() == l.getMedicamentId())
+                            .map(Medicament::getNomCommercial)
+                            .findFirst().orElse("?"))
+                    .distinct()
+                    .collect(java.util.stream.Collectors.joining(", "));
+            lignesMedsCache.put(cmd.getId(), medsNames);
+        }
+
+        commandes.addAll(allCommandes);
         tableCommandes.setItems(commandes);
     }
 
@@ -519,10 +530,6 @@ public class CommandeController {
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        FXUtil.showAlert(title, content, type);
     }
 }

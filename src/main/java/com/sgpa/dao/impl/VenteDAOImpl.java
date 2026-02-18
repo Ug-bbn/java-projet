@@ -1,5 +1,6 @@
 package com.sgpa.dao.impl;
 
+import com.sgpa.dao.DAOException;
 import com.sgpa.dao.VenteDAO;
 import com.sgpa.model.Vente;
 import com.sgpa.model.LigneVente;
@@ -20,6 +21,7 @@ public class VenteDAOImpl implements VenteDAO {
             create(vente, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la vente", e);
+            throw new DAOException("Erreur lors de la creation de la vente", e);
         }
     }
 
@@ -40,7 +42,7 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la vente", e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la creation de la vente", e);
         }
     }
 
@@ -65,6 +67,7 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de la vente {}", id, e);
+            throw new DAOException("Erreur lors de la recherche de la vente " + id, e);
         }
         return null;
     }
@@ -89,6 +92,7 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des ventes", e);
+            throw new DAOException("Erreur lors de la recuperation des ventes", e);
         }
         return liste;
     }
@@ -104,6 +108,7 @@ public class VenteDAOImpl implements VenteDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression de la vente {}", id, e);
+            throw new DAOException("Erreur lors de la suppression de la vente " + id, e);
         }
     }
 
@@ -113,6 +118,7 @@ public class VenteDAOImpl implements VenteDAO {
             addLigneVente(venteId, ligne, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de vente", e);
+            throw new DAOException("Erreur lors de l'ajout de la ligne de vente", e);
         }
     }
 
@@ -129,7 +135,7 @@ public class VenteDAOImpl implements VenteDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de vente", e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de l'ajout de la ligne de vente", e);
         }
     }
 
@@ -155,6 +161,7 @@ public class VenteDAOImpl implements VenteDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de vente {}", venteId, e);
+            throw new DAOException("Erreur lors de la recuperation des lignes de vente " + venteId, e);
         }
         return lignes;
     }
@@ -174,7 +181,7 @@ public class VenteDAOImpl implements VenteDAO {
         try {
             vente.setNomsMedicaments(rs.getString("noms_medicaments"));
         } catch (SQLException e) {
-            // Ignore if column not found
+            logger.debug("Colonne noms_medicaments absente du ResultSet", e);
         }
 
         return vente;

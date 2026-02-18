@@ -1,7 +1,5 @@
 package com.sgpa.util;
 
-import com.sgpa.MainApp;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

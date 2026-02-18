@@ -4,6 +4,7 @@ import com.sgpa.model.Medicament;
 import com.sgpa.model.Vente;
 import com.sgpa.service.MedicamentService;
 import com.sgpa.service.VenteService;
+import com.sgpa.util.FXUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -71,7 +72,7 @@ public class VenteController {
             protected void updateItem(Medicament item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null
-                        : item.getNomCommercial() + " - " + item.getPrixPublic() + " \u20ac");
+                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
             }
         });
         cmbMedicament.setButtonCell(new ListCell<>() {
@@ -79,7 +80,7 @@ public class VenteController {
             protected void updateItem(Medicament item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty || item == null ? null
-                        : item.getNomCommercial() + " - " + item.getPrixPublic() + " \u20ac");
+                        : item.getNomCommercial() + " (" + item.getFormeGalenique() + ")");
             }
         });
 
@@ -99,10 +100,10 @@ public class VenteController {
                 new javafx.beans.property.SimpleIntegerProperty(cd.getValue().quantite).asObject());
         colPanierPrixUnit.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(cd.getValue().prixUnitaire.toPlainString() + " \u20ac"));
-        colPanierPrixUnit.setStyle("-fx-alignment: CENTER-RIGHT;");
+        colPanierPrixUnit.getStyleClass().add("column-align-right");
         colPanierTotal.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(cd.getValue().getTotal().toPlainString() + " \u20ac"));
-        colPanierTotal.setStyle("-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;");
+        colPanierTotal.getStyleClass().add("column-align-right-bold");
 
         tablePanier.setItems(panier);
         panier.addListener((ListChangeListener<ArticlePanier>) c -> updateTotalLabel());
@@ -223,11 +224,7 @@ public class VenteController {
     }
 
     private void showAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        FXUtil.showAlert(title, content, type);
     }
 
     // Inner class for panier items

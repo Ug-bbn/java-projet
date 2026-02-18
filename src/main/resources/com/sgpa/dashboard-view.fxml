@@ -6,7 +6,6 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
@@ -15,9 +14,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgpa.controller.DashboardController">
+<ScrollPane fitToWidth="true" styleClass="content-area" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.sgpa.controller.DashboardController">
     <content>
         <VBox spacing="20.0" styleClass="dashboard-container">
             <padding>
@@ -84,7 +82,7 @@
                                 <Label text="Évolution des Ventes (7 jours)" styleClass="section-title" />
                                 <BarChart fx:id="chartVentesSemaine" legendVisible="false" VBox.vgrow="ALWAYS">
                                     <xAxis>
-                                        <CategoryAxis label="Date" />
+                                        <CategoryAxis label="Date" tickLabelRotation="-45" tickLabelGap="5" />
                                     </xAxis>
                                     <yAxis>
                                         <NumberAxis label="Ventes (€)" />
@@ -109,10 +107,11 @@
                             <children>
                                 <Label text="Dernières Ventes" styleClass="section-title" />
                                 <TableView fx:id="tableDernieresVentes" VBox.vgrow="ALWAYS">
+                                    <placeholder><Label text="Aucune vente aujourd'hui."/></placeholder>
                                     <columns>
                                         <TableColumn fx:id="colVenteId" text="ID" prefWidth="50.0" />
                                         <TableColumn fx:id="colVenteHeure" text="Heure" prefWidth="80.0" />
-                                        <TableColumn fx:id="colVenteMontant" text="Montant" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;"/>
+                                        <TableColumn fx:id="colVenteMontant" text="Montant" prefWidth="100.0" styleClass="column-align-right-bold"/>
                                     </columns>
                                     <columnResizePolicy>
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -127,6 +126,7 @@
                                     <children>
                                         <Label text="Stock Épuisé" styleClass="section-title" />
                                         <TableView fx:id="tableStockEpuise" VBox.vgrow="ALWAYS">
+                                            <placeholder><Label text="Aucun stock épuisé."/></placeholder>
                                             <columns>
                                                 <TableColumn fx:id="colStockNom" text="Nom du Médicament" />
                                                 <TableColumn fx:id="colStockForme" text="Forme Galénique" />
@@ -141,6 +141,7 @@
                                     <children>
                                         <Label text="Médicaments Périmés" styleClass="section-title" />
                                         <TableView fx:id="tableMedicamentsPerimes" VBox.vgrow="ALWAYS" maxHeight="200">
+                                            <placeholder><Label text="Aucun médicament périmé."/></placeholder>
                                             <columns>
                                                 <TableColumn fx:id="colPerimeNom" text="Nom du Médicament" />
                                                 <TableColumn fx:id="colPerimeLot" text="Numéro de Lot" />

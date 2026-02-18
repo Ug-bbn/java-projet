@@ -72,6 +72,10 @@ public class MedicamentService {
         return lotDAO.findExpiringBefore(dateLimite);
     }
 
+    public List<Lot> getLotsPerimes() {
+        return lotDAO.findExpiringBefore(LocalDate.now());
+    }
+
     public int getStockTotal(int medicamentId) {
         return lotDAO.getStockTotal(medicamentId);
     }

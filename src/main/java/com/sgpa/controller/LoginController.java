@@ -63,23 +63,19 @@ public class LoginController {
 
             Scene scene = new Scene(root);
 
-            // Load theme
-            com.sgpa.util.LocalUserData.getProperty("theme").ifPresent(themeOrdinal -> {
-                com.sgpa.util.Theme theme = com.sgpa.util.Theme.values()[Integer.parseInt(themeOrdinal)];
-                boolean isDark = Boolean
-                        .parseBoolean(com.sgpa.util.LocalUserData.getProperty("dark_mode").orElse("false"));
-
-                scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
-                scene.getStylesheets().addAll(theme.getThemeFile(),
-                        isDark ? theme.getDarkFile() : theme.getLightFile());
-            });
-
-            // Default theme if none set
-            if (scene.getStylesheets().isEmpty()) {
-                scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
-                scene.getStylesheets().add(com.sgpa.util.Theme.STANDARD.getThemeFile());
-                scene.getStylesheets().add(com.sgpa.util.Theme.STANDARD.getLightFile());
+            // Load saved dark mode preference and switch AtlantaFX base theme
+            boolean isDark = Boolean.parseBoolean(
+                    com.sgpa.util.LocalUserData.getProperty("dark_mode").orElse("false"));
+            if (isDark) {
+                javafx.application.Application.setUserAgentStylesheet(
+                        new atlantafx.base.theme.PrimerDark().getUserAgentStylesheet());
+            } else {
+                javafx.application.Application.setUserAgentStylesheet(
+                        new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
             }
+
+            // Load app CSS
+            scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
 
             scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
@@ -106,5 +102,6 @@ public class LoginController {
     private void showError(String message) {
         lblError.setText(message);
         lblError.setVisible(true);
+        lblError.setManaged(true);
     }
 }

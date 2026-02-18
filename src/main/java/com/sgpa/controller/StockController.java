@@ -8,7 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -69,32 +68,42 @@ public class StockController {
             @Override
             protected void updateItem(Lot item, boolean empty) {
                 super.updateItem(item, empty);
+                // Fix: individual remove() calls instead of removeAll(E...) varargs (known JavaFX bug)
+                getStyleClass().remove("row-low-stock");
+                getStyleClass().remove("row-expiring");
+                setStyle("");
+
                 if (item == null || empty) {
-                    getStyleClass().removeAll("row-low-stock", "row-expiring");
-                } else {
-                    // Reset styles
-                    getStyleClass().removeAll("row-low-stock", "row-expiring");
+                    return;
+                }
 
-                    LocalDate now = LocalDate.now();
-                    boolean isExpiring = item.getDatePeremption() != null &&
-                                         item.getDatePeremption().isBefore(now.plusMonths(3));
+                LocalDate now = LocalDate.now();
+                boolean isExpiring = item.getDatePeremption() != null &&
+                                     item.getDatePeremption().isBefore(now.plusMonths(3));
 
-                    int threshold = thresholds.getOrDefault(item.getMedicamentId(), 0);
-                    int total = totalStocks.getOrDefault(item.getMedicamentId(), 0);
-                    boolean isLowStock = total < threshold;
+                int threshold = thresholds.getOrDefault(item.getMedicamentId(), 0);
+                int total = totalStocks.getOrDefault(item.getMedicamentId(), 0);
+                boolean isLowStock = threshold > 0 && total < threshold;
 
-                    // Priority: Expiring (Yellow) > Low Stock (Orange)
-                    // If expiring, use yellow. If low stock, use orange.
-                    // User requirement: "si un lot est à la fois faible et proche de la péremption, choisis la couleur la plus critique"
-                    // We assume Expiring is most critical for a specific Lot row.
-                    if (isExpiring) {
-                        getStyleClass().add("row-expiring");
-                    } else if (isLowStock) {
-                        getStyleClass().add("row-low-stock");
-                    }
+                // Priorité : Péremption (Jaune) > Stock Faible (Orange)
+                if (isExpiring) {
+                    getStyleClass().add("row-expiring");
+                } else if (isLowStock) {
+                    getStyleClass().add("row-low-stock");
                 }
             }
         });
+    }
+
+    @FXML
+    private void handleShowLegende() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Légende des couleurs");
+        alert.setHeaderText("Code couleur du tableau de stock");
+        alert.setContentText(
+            "Orange = Stock Faible (quantité totale du médicament < seuil minimum)\n" +
+            "Jaune = Périme bientôt (date de péremption dans moins de 3 mois)");
+        alert.showAndWait();
     }
 
     @FXML

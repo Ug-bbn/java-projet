@@ -7,8 +7,7 @@
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.sgpa.controller.RegisterController"
       alignment="CENTER" spacing="20"
-      styleClass="login-background"
-      stylesheets="@style-light.css">
+      styleClass="login-background">
 
     <padding>
         <Insets top="30" right="50" bottom="30" left="50"/>
@@ -48,8 +47,8 @@
             </VBox>
 
             <!-- Messages -->
-            <Label fx:id="lblError" text="" visible="false" styleClass="error-label"/>
-            <Label fx:id="lblSuccess" text="" visible="false" styleClass="success-label"/>
+            <Label fx:id="lblError" text="" visible="false" managed="false" styleClass="error-label"/>
+            <Label fx:id="lblSuccess" text="" visible="false" managed="false" styleClass="success-label"/>
 
             <!-- Boutons -->
             <Button text="Créer le compte" onAction="#handleRegister" prefWidth="350" styleClass="register-button"/>

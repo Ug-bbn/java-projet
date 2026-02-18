@@ -1,5 +1,6 @@
 package com.sgpa.dao.impl;
 
+import com.sgpa.dao.DAOException;
 import com.sgpa.dao.UtilisateurDAO;
 import com.sgpa.model.Role;
 import com.sgpa.model.Utilisateur;
@@ -8,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class UtilisateurDAOImpl implements UtilisateurDAO {
@@ -36,6 +36,7 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de l'utilisateur", e);
+            throw new DAOException("Erreur lors de la creation de l'utilisateur", e);
         }
     }
 
@@ -54,6 +55,7 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de l'utilisateur {}", id, e);
+            throw new DAOException("Erreur lors de la recherche de l'utilisateur " + id, e);
         }
         return null;
     }
@@ -73,13 +75,25 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de l'utilisateur {}", username, e);
+            throw new DAOException("Erreur lors de la recherche de l'utilisateur " + username, e);
         }
         return null;
     }
 
     @Override
     public boolean usernameExists(String username) {
-        return findByUsername(username) != null;
+        String sql = "SELECT 1 FROM utilisateurs WHERE username = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            logger.error("Erreur lors de la verification du username {}", username, e);
+            throw new DAOException("Erreur lors de la verification du username " + username, e);
+        }
     }
 
     @Override
@@ -97,6 +111,7 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des utilisateurs", e);
+            throw new DAOException("Erreur lors de la recuperation des utilisateurs", e);
         }
         return utilisateurs;
     }
@@ -118,6 +133,7 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de l'utilisateur {}", utilisateur.getId(), e);
+            throw new DAOException("Erreur lors de la mise a jour de l'utilisateur " + utilisateur.getId(), e);
         }
     }
 
@@ -132,6 +148,7 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression de l'utilisateur {}", id, e);
+            throw new DAOException("Erreur lors de la suppression de l'utilisateur " + id, e);
         }
     }
 
@@ -144,10 +161,9 @@ public class UtilisateurDAOImpl implements UtilisateurDAO {
         utilisateur.setPrenom(rs.getString("prenom"));
         utilisateur.setRole(Role.fromString(rs.getString("role")));
 
-        String dateStr = rs.getString("date_creation");
-        if (dateStr != null) {
-            dateStr = dateStr.replace(" ", "T");
-            utilisateur.setDateCreation(LocalDateTime.parse(dateStr));
+        Timestamp ts = rs.getTimestamp("date_creation");
+        if (ts != null) {
+            utilisateur.setDateCreation(ts.toLocalDateTime());
         }
 
         return utilisateur;

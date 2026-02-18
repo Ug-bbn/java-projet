@@ -1,5 +1,6 @@
 package com.sgpa.dao.impl;
 
+import com.sgpa.dao.DAOException;
 import com.sgpa.dao.LotDAO;
 import com.sgpa.model.Lot;
 import com.sgpa.util.DatabaseConnection;
@@ -20,6 +21,7 @@ public class LotDAOImpl implements LotDAO {
             create(lot, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation du lot", e);
+            throw new DAOException("Erreur lors de la creation du lot", e);
         }
     }
 
@@ -42,7 +44,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation du lot", e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la creation du lot", e);
         }
     }
 
@@ -63,6 +65,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche du lot {}", id, e);
+            throw new DAOException("Erreur lors de la recherche du lot " + id, e);
         }
         return null;
     }
@@ -85,6 +88,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche des lots du medicament {}", medicamentId, e);
+            throw new DAOException("Erreur lors de la recherche des lots du medicament " + medicamentId, e);
         }
         return liste;
     }
@@ -104,6 +108,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lots", e);
+            throw new DAOException("Erreur lors de la recuperation des lots", e);
         }
         return liste;
     }
@@ -114,6 +119,7 @@ public class LotDAOImpl implements LotDAO {
             update(lot, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour du lot {}", lot.getId(), e);
+            throw new DAOException("Erreur lors de la mise a jour du lot " + lot.getId(), e);
         }
     }
 
@@ -132,7 +138,7 @@ public class LotDAOImpl implements LotDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour du lot {}", lot.getId(), e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la mise a jour du lot " + lot.getId(), e);
         }
     }
 
@@ -147,12 +153,13 @@ public class LotDAOImpl implements LotDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression du lot {}", id, e);
+            throw new DAOException("Erreur lors de la suppression du lot " + id, e);
         }
     }
 
     @Override
     public int getStockTotal(int medicamentId) {
-        String sql = "SELECT SUM(quantite_stock) as total FROM lots WHERE medicament_id = ?";
+        String sql = "SELECT COALESCE(SUM(quantite_stock), 0) as total FROM lots WHERE medicament_id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -165,6 +172,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors du calcul du stock total du medicament {}", medicamentId, e);
+            throw new DAOException("Erreur lors du calcul du stock total du medicament " + medicamentId, e);
         }
         return 0;
     }
@@ -187,6 +195,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche des lots proches de peremption", e);
+            throw new DAOException("Erreur lors de la recherche des lots proches de peremption", e);
         }
         return liste;
     }
@@ -197,7 +206,7 @@ public class LotDAOImpl implements LotDAO {
             return findByMedicamentIdOrderByDate(medicamentId, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche des lots ordonnes du medicament {}", medicamentId, e);
-            return new ArrayList<>();
+            throw new DAOException("Erreur lors de la recherche des lots ordonnes du medicament " + medicamentId, e);
         }
     }
 
@@ -218,7 +227,7 @@ public class LotDAOImpl implements LotDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche des lots ordonnes du medicament {}", medicamentId, e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la recherche des lots ordonnes du medicament " + medicamentId, e);
         }
         return liste;
     }
@@ -235,7 +244,7 @@ public class LotDAOImpl implements LotDAO {
         try {
             lot.setNomMedicament(rs.getString("nom_commercial"));
         } catch (SQLException e) {
-            // Ignore si la colonne n'est pas presente
+            logger.debug("Colonne nom_commercial absente du ResultSet", e);
         }
 
         return lot;

@@ -1,6 +1,7 @@
 package com.sgpa.dao.impl;
 
 import com.sgpa.dao.CommandeDAO;
+import com.sgpa.dao.DAOException;
 import com.sgpa.model.Commande;
 import com.sgpa.model.LigneCommande;
 import com.sgpa.model.StatutCommande;
@@ -35,6 +36,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la creation de la commande", e);
+            throw new DAOException("Erreur lors de la creation de la commande", e);
         }
     }
 
@@ -53,6 +55,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recherche de la commande {}", id, e);
+            throw new DAOException("Erreur lors de la recherche de la commande " + id, e);
         }
         return null;
     }
@@ -71,6 +74,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des commandes", e);
+            throw new DAOException("Erreur lors de la recuperation des commandes", e);
         }
         return liste;
     }
@@ -81,6 +85,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             update(cmd, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
+            throw new DAOException("Erreur lors de la mise a jour de la commande " + cmd.getId(), e);
         }
     }
 
@@ -98,7 +103,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la mise a jour de la commande {}", cmd.getId(), e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la mise a jour de la commande " + cmd.getId(), e);
         }
     }
 
@@ -113,6 +118,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de la suppression de la commande {}", id, e);
+            throw new DAOException("Erreur lors de la suppression de la commande " + id, e);
         }
     }
 
@@ -131,6 +137,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             stmt.executeUpdate();
         } catch (SQLException e) {
             logger.error("Erreur lors de l'ajout de la ligne de commande", e);
+            throw new DAOException("Erreur lors de l'ajout de la ligne de commande", e);
         }
     }
 
@@ -140,7 +147,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             return getLignesCommande(commandeId, conn);
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
-            return new ArrayList<>();
+            throw new DAOException("Erreur lors de la recuperation des lignes de commande " + commandeId, e);
         }
     }
 
@@ -164,7 +171,7 @@ public class CommandeDAOImpl implements CommandeDAO {
             }
         } catch (SQLException e) {
             logger.error("Erreur lors de la recuperation des lignes de commande {}", commandeId, e);
-            throw new RuntimeException(e);
+            throw new DAOException("Erreur lors de la recuperation des lignes de commande " + commandeId, e);
         }
         return lignes;
     }

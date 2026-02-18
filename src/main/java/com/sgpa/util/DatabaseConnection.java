@@ -77,6 +77,13 @@ public class DatabaseConnection {
         return getConnection();
     }
 
+    public static void close() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            logger.info("Pool de connexions HikariCP ferme");
+        }
+    }
+
     private static void createTablesIfNotExist() throws SQLException {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
@@ -119,8 +126,17 @@ public class DatabaseConnection {
                         id SERIAL PRIMARY KEY,
                         fournisseur_id INTEGER REFERENCES fournisseurs(id) ON DELETE SET NULL,
                         date_commande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        statut VARCHAR(20)
+                        statut VARCHAR(20),
+                        numero_lot VARCHAR(50)
                     )
+                """);
+
+            // Add numero_lot column if table already exists without it
+            stmt.execute("""
+                    DO $$ BEGIN
+                        ALTER TABLE commandes ADD COLUMN IF NOT EXISTS numero_lot VARCHAR(50);
+                    EXCEPTION WHEN duplicate_column THEN NULL;
+                    END $$
                 """);
 
             stmt.execute("""
@@ -163,6 +179,14 @@ public class DatabaseConnection {
                         date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 """);
+
+            // Create indexes on foreign keys (PostgreSQL doesn't auto-index FK)
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_lots_medicament_id ON lots(medicament_id)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_commande_commande_id ON lignes_commande(commande_id)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_commande_medicament_id ON lignes_commande(medicament_id)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_commandes_fournisseur_id ON commandes(fournisseur_id)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_vente_vente_id ON lignes_vente(vente_id)");
+            stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_vente_lot_id ON lignes_vente(lot_id)");
 
             createDefaultAdminIfNeeded(conn);
         }
