@@ -127,6 +127,7 @@ public class DatabaseConnection {
                     )
                 """);
 
+            // Add numero_lot column if table already exists without it
             stmt.execute("""
                     DO $$ BEGIN
                         ALTER TABLE commandes ADD COLUMN IF NOT EXISTS numero_lot VARCHAR(50);
@@ -175,6 +176,7 @@ public class DatabaseConnection {
                     )
                 """);
 
+            // Create indexes on foreign keys (PostgreSQL doesn't auto-index FK)
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_lots_medicament_id ON lots(medicament_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_commande_commande_id ON lignes_commande(commande_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_lignes_commande_medicament_id ON lignes_commande(medicament_id)");
@@ -204,7 +206,7 @@ public class DatabaseConnection {
                     insertStmt.setString(5, "ADMIN");
                     insertStmt.executeUpdate();
                 }
-                logger.info("Compte administrateur par defaut cree");
+                logger.info("Compte administrateur par defaut cree (admin/admin)");
             }
         }
     }

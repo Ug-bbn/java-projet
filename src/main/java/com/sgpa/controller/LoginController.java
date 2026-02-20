@@ -52,18 +52,15 @@ public class LoginController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/sgpa/dashboard-template.fxml"));
             Parent root = fxmlLoader.load();
 
-            // Close login stage
             Stage loginStage = (Stage) txtUsername.getScene().getWindow();
             loginStage.close();
 
-            // Create NEW stage for dashboard
             Stage dashboardStage = new Stage();
             dashboardStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
             dashboardStage.setMaximized(true);
 
             Scene scene = new Scene(root);
 
-            // Load saved dark mode preference and switch AtlantaFX base theme
             boolean isDark = Boolean.parseBoolean(
                     com.sgpa.util.LocalUserData.getProperty("dark_mode").orElse("false"));
             if (isDark) {
@@ -74,12 +71,10 @@ public class LoginController {
                         new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
             }
 
-            // Load app CSS
             scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
 
             scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
-            // Pass stage to controller
             DashboardTemplateController controller = fxmlLoader.getController();
             controller.setStage(dashboardStage);
 
@@ -90,12 +85,6 @@ public class LoginController {
         } catch (IOException e) {
             logger.error("Erreur lors de l'ouverture du tableau de bord", e);
             showError("Erreur lors du chargement du tableau de bord.");
-
-            // Re-show login stage if error, creating a new one if necessary or if we didn't
-            // close it yet (we did close it)
-            // Ideally we shouldn't close login stage until we are sure loading worked, but
-            // StageStyle requirement makes it tricky.
-            // Simplified recovery: just log error.
         }
     }
 

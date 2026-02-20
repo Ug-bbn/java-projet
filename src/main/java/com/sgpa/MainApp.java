@@ -19,8 +19,6 @@ public class MainApp extends Application {
         } else {
             Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
         }
-        org.fxmisc.cssfx.CSSFX.start();
-
         FXMLLoader fxmlLoader = new FXMLLoader(MainApp.class.getResource("/com/sgpa/login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         scene.getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());

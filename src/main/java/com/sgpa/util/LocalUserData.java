@@ -11,7 +11,6 @@ public class LocalUserData {
 
     private static final String TEMP_PATH = System.getProperty("java.io.tmpdir");
 
-    // Using a folder name specific to our app to avoid conflicts
     private static final File FOLDER = new File(TEMP_PATH + "/SGPA_Dashboard"),
             PROPERTIES_FILE = new File(FOLDER, "data.properties");
 

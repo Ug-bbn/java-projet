@@ -38,7 +38,6 @@ public class StockController {
     private final MedicamentService medicamentService = new MedicamentService();
     private final ObservableList<Lot> lots = FXCollections.observableArrayList();
 
-    // Cache for logic
     private final Map<Integer, Integer> thresholds = new HashMap<>();
     private final Map<Integer, Integer> totalStocks = new HashMap<>();
 
@@ -68,7 +67,6 @@ public class StockController {
             @Override
             protected void updateItem(Lot item, boolean empty) {
                 super.updateItem(item, empty);
-                // Fix: individual remove() calls instead of removeAll(E...) varargs (known JavaFX bug)
                 getStyleClass().remove("row-low-stock");
                 getStyleClass().remove("row-expiring");
                 setStyle("");
@@ -85,7 +83,6 @@ public class StockController {
                 int total = totalStocks.getOrDefault(item.getMedicamentId(), 0);
                 boolean isLowStock = threshold > 0 && total < threshold;
 
-                // Priorité : Péremption (Jaune) > Stock Faible (Orange)
                 if (isExpiring) {
                     getStyleClass().add("row-expiring");
                 } else if (isLowStock) {
@@ -120,14 +117,12 @@ public class StockController {
         lots.clear();
         java.util.List<Lot> allLots = stockService.getAllLots();
 
-        // Refresh caches
         thresholds.clear();
         medicamentService.getAllMedicaments().forEach(m ->
             thresholds.put(m.getId(), m.getSeuilMinAlerte())
         );
 
         totalStocks.clear();
-        // Calculate total stock based on ALL lots (not just filtered ones)
         Map<Integer, Integer> calculatedStocks = allLots.stream()
                 .collect(Collectors.groupingBy(Lot::getMedicamentId,
                          Collectors.summingInt(Lot::getQuantiteStock)));
@@ -136,12 +131,10 @@ public class StockController {
         boolean showArchives = btnArchives != null && btnArchives.isSelected();
 
         if (showArchives) {
-            // Mode Archives: seulement Quantité == 0
             allLots.stream()
                     .filter(l -> l.getQuantiteStock() == 0)
                     .forEach(lots::add);
         } else {
-            // Mode par défaut: seulement Quantité > 0
             allLots.stream()
                     .filter(l -> l.getQuantiteStock() > 0)
                     .forEach(lots::add);

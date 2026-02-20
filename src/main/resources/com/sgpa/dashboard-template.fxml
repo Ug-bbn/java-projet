@@ -17,15 +17,15 @@
             fx:controller="com.sgpa.controller.DashboardTemplateController">
             
     <left>
-        <VBox styleClass="sidebar" BorderPane.alignment="CENTER">
+        <VBox styleClass="sidebar" BorderPane.alignment="TOP_LEFT">
             <padding>
                 <Insets bottom="20.0" left="0.0" top="40.0" />
             </padding>
             <VBox alignment="CENTER" spacing="6">
-                <StackPane maxWidth="40" maxHeight="40" minWidth="40" minHeight="40"
+                <StackPane maxWidth="46" maxHeight="46" minWidth="46" minHeight="46"
                            styleClass="logo-icon">
-                    <SVGPath content="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H6v-2h4V7h2v4h4v2h-4v4z"
-                             styleClass="logo-svg" scaleX="1.4" scaleY="1.4"/>
+                    <SVGPath content="M9.5 2C8.67 2 8 2.67 8 3.5V8H3.5C2.67 8 2 8.67 2 9.5v5c0 .83.67 1.5 1.5 1.5H8v4.5c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5V16h4.5c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5H16V3.5c0-.83-.67-1.5-1.5-1.5h-5z"
+                             styleClass="logo-svg" scaleX="1.3" scaleY="1.3"/>
                 </StackPane>
                 <Label styleClass="logo" text="SGPA" />
             </VBox>
@@ -75,6 +75,14 @@
                          <SVGPath content="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 18c-4.55 0-8.25-3.7-8.25-8.25S7.45 3.75 12 3.75 20.25 7.45 20.25 12 16.55 20.25 12 20.25zm1-13h-2v6h6v-2h-4z" styleClass="icon" />
                     </StackPane>
                     <Label styleClass="regular" text="Commandes" />
+                </HBox>
+
+                <!-- Fournisseurs -->
+                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="sidebar-tab">
+                    <StackPane maxHeight="20.0" maxWidth="20.0" minHeight="20.0" minWidth="20.0">
+                         <SVGPath content="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9 3h2v2h-2V7zm0 4h2v6h-2v-6zM5 7h6v2H5V7zm0 4h6v2H5v-2zm0 4h6v2H5v-2zm8 2v-2h6v2h-6zm0-4v-2h6v2h-6z" styleClass="icon" />
+                    </StackPane>
+                    <Label styleClass="regular" text="Fournisseurs" />
                 </HBox>
 
                 <!-- Utilisateurs -->

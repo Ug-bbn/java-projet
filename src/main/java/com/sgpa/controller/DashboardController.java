@@ -93,11 +93,14 @@ public class DashboardController {
     }
 
     private void setupChart() {
+        chartVentesSemaine.setAnimated(false);
         if (chartVentesSemaine.getXAxis() instanceof javafx.scene.chart.CategoryAxis xAxis) {
+            xAxis.setAnimated(false);
             xAxis.setTickLabelRotation(-45);
             xAxis.setTickLabelGap(5);
         }
         if (chartVentesSemaine.getYAxis() instanceof javafx.scene.chart.NumberAxis yAxis) {
+            yAxis.setAnimated(false);
             yAxis.setTickLabelFormatter(new javafx.util.StringConverter<Number>() {
                 @Override
                 public String toString(Number object) {
@@ -126,14 +129,13 @@ public class DashboardController {
                 snap.medicamentsEpuises = dashboardService.getMedicamentsStockEpuise();
                 snap.lotsPerimes = dashboardService.getLotsPerimes();
 
-                // Pre-compute stock for pie chart (top 5)
                 snap.pieData = new ArrayList<>();
-                snap.medicaments.stream().limit(5).forEach(m -> {
+                for (Medicament m : snap.medicaments) {
                     int stock = dashboardService.getStockTotal(m.getId());
                     if (stock > 0) {
                         snap.pieData.add(new PieChart.Data(m.getNomCommercial(), stock));
                     }
-                });
+                }
 
                 return snap;
             }
@@ -157,45 +159,47 @@ public class DashboardController {
     }
 
     private void applySnapshot(DashboardSnapshot snap) {
-        // KPIs
         lblTotalMedicaments.setText(String.valueOf(snap.totalMedicaments));
         lblAlertesStock.setText(String.valueOf(snap.alertesCount));
         lblVentesDuJour.setText(snap.ventesJour.toPlainString() + " €");
         lblCommandesEnAttente.setText(String.valueOf(snap.commandesEnAttente));
 
-        // Bar Chart
         chartVentesSemaine.getData().clear();
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName("Ventes");
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
 
+        List<String> categories = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
+            String label = date.format(formatter);
+            categories.add(label);
             BigDecimal total = snap.ventes.stream()
                     .filter(v -> v.getDateVente().toLocalDate().isEqual(date))
                     .map(Vente::getTotalVente)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            series.getData().add(new XYChart.Data<>(date.format(formatter), total.doubleValue()));
+            series.getData().add(new XYChart.Data<>(label, total.doubleValue()));
+        }
+
+        if (chartVentesSemaine.getXAxis() instanceof javafx.scene.chart.CategoryAxis xAxis) {
+            xAxis.setCategories(FXCollections.observableArrayList(categories));
+            xAxis.setAutoRanging(false);
         }
         chartVentesSemaine.getData().add(series);
 
-        // Pie Chart
         chartRepartitionStock.getData().clear();
         chartRepartitionStock.setData(FXCollections.observableArrayList(snap.pieData));
 
-        // Dernieres Ventes
         snap.ventes.sort((v1, v2) -> v2.getDateVente().compareTo(v1.getDateVente()));
         tableDernieresVentes.setItems(FXCollections.observableArrayList(snap.ventes.stream().limit(10).toList()));
 
-        // Stock Epuise
         ObservableList<StockEpuiseItem> stockItems = FXCollections.observableArrayList();
         for (Medicament m : snap.medicamentsEpuises) {
-            stockItems.add(new StockEpuiseItem(m.getNomCommercial(), m.getFormeGalenique(), 0));
+            stockItems.add(new StockEpuiseItem(m.getNomCommercial(), m.getFormeGalenique()));
         }
         tableStockEpuise.setItems(stockItems);
 
-        // Medicaments Perimes
         ObservableList<MedicamentPerimeItem> perimeItems = FXCollections.observableArrayList();
         Set<String> seen = new HashSet<>();
         DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -212,7 +216,6 @@ public class DashboardController {
         tableMedicamentsPerimes.setItems(perimeItems);
     }
 
-    // Snapshot object to transfer data from background thread to FX thread
     private static class DashboardSnapshot {
         int totalMedicaments;
         int alertesCount;
@@ -228,17 +231,14 @@ public class DashboardController {
     public static class StockEpuiseItem {
         private final String nom;
         private final String forme;
-        private final int quantite;
 
-        public StockEpuiseItem(String nom, String forme, int quantite) {
+        public StockEpuiseItem(String nom, String forme) {
             this.nom = nom;
             this.forme = forme;
-            this.quantite = quantite;
         }
 
         public String getNom() { return nom; }
         public String getForme() { return forme; }
-        public int getQuantite() { return quantite; }
     }
 
     public static class MedicamentPerimeItem {

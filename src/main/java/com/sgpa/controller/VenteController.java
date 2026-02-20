@@ -17,7 +17,6 @@ import java.util.Map;
 
 public class VenteController {
 
-    // --- Article form ---
     @FXML
     private ComboBox<Medicament> cmbMedicament;
     @FXML
@@ -27,7 +26,6 @@ public class VenteController {
     @FXML
     private CheckBox chkOrdonnance;
 
-    // --- Panier table ---
     @FXML
     private TableView<ArticlePanier> tablePanier;
     @FXML
@@ -41,7 +39,6 @@ public class VenteController {
     @FXML
     private Label lblTotalVente;
 
-    // --- Historique table ---
     @FXML
     private TableView<Vente> tableHistorique;
     @FXML
@@ -62,7 +59,6 @@ public class VenteController {
 
     @FXML
     public void initialize() {
-        // Load medicaments
         ObservableList<Medicament> medicaments = FXCollections.observableArrayList(
                 medicamentService.getAllMedicaments());
         cmbMedicament.setItems(medicaments);
@@ -93,7 +89,6 @@ public class VenteController {
             }
         });
 
-        // --- Panier table columns ---
         colPanierMedicament.setCellValueFactory(cd ->
                 new javafx.beans.property.SimpleStringProperty(cd.getValue().nomMedicament));
         colPanierQuantite.setCellValueFactory(cd ->
@@ -109,7 +104,6 @@ public class VenteController {
         panier.addListener((ListChangeListener<ArticlePanier>) c -> updateTotalLabel());
         updateTotalLabel();
 
-        // --- Historique table columns ---
         colId.setCellValueFactory(
                 cd -> new javafx.beans.property.SimpleIntegerProperty(cd.getValue().getId()).asObject());
         colMedicaments.setCellValueFactory(
@@ -145,7 +139,6 @@ public class VenteController {
         }
 
         int stock = medicamentService.getStockTotal(medicament.getId());
-        // Sum already in panier for this medicament
         int dejaDansPanier = panier.stream()
                 .filter(a -> a.medicamentId == medicament.getId())
                 .mapToInt(a -> a.quantite)
@@ -181,7 +174,6 @@ public class VenteController {
 
         boolean surOrdonnance = chkOrdonnance.isSelected();
 
-        // Build articles map (aggregate same medicament)
         Map<Integer, Integer> articles = new LinkedHashMap<>();
         for (ArticlePanier a : panier) {
             articles.merge(a.medicamentId, a.quantite, Integer::sum);
@@ -227,7 +219,6 @@ public class VenteController {
         FXUtil.showAlert(title, content, type);
     }
 
-    // Inner class for panier items
     public static class ArticlePanier {
         final int medicamentId;
         final String nomMedicament;

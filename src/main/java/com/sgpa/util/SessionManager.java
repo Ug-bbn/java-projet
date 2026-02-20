@@ -31,7 +31,4 @@ public class SessionManager {
         return utilisateurConnecte;
     }
 
-    public boolean isLoggedIn() {
-        return utilisateurConnecte != null;
-    }
 }

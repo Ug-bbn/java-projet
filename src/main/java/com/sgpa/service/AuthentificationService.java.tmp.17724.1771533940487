@@ -75,6 +75,10 @@ public class AuthentificationService {
         return true;
     }
 
+    public boolean isAdmin(Utilisateur utilisateur) {
+        return utilisateur != null && Role.ADMIN.equals(utilisateur.getRole());
+    }
+
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }

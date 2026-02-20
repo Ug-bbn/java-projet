@@ -52,21 +52,17 @@ public class DashboardTemplateController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Afficher la date du jour
         lblDate.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 
-        // Afficher l'utilisateur connecté
         Utilisateur user = SessionManager.getInstance().getUtilisateurConnecte();
         if (user != null) {
             lblUtilisateur.setText(user.getNomComplet());
         }
 
-        // Load default view
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/sgpa/dashboard-view.fxml"));
             Parent view = loader.load();
             contentArea.getChildren().add(view);
-            // Also mark the first menu item as selected
             if (!vbxMenuNavigation.getChildren().isEmpty()) {
                 vbxMenuNavigation.getChildren().get(0).getStyleClass().add("selected");
             }
@@ -84,14 +80,6 @@ public class DashboardTemplateController implements Initializable {
     }
 
     private void setupNavigation() {
-        // Index mapping (après suppression d'Alertes):
-        // 0: Tableau de bord
-        // 1: Médicaments
-        // 2: Ventes
-        // 3: Stock
-        // 4: Commandes
-        // 5: Utilisateurs (ADMIN only)
-
         Utilisateur user = SessionManager.getInstance().getUtilisateurConnecte();
         boolean isAdmin = user != null && Role.ADMIN.equals(user.getRole());
 
@@ -101,6 +89,7 @@ public class DashboardTemplateController implements Initializable {
             "/com/sgpa/vente-view.fxml",
             "/com/sgpa/stock-view.fxml",
             "/com/sgpa/commande-view.fxml",
+            "/com/sgpa/fournisseur-view.fxml",
             "/com/sgpa/utilisateur-view.fxml"
         };
 
@@ -108,8 +97,7 @@ public class DashboardTemplateController implements Initializable {
             Node nav = vbxMenuNavigation.getChildren().get(i);
             String viewPath = views[i];
 
-            // Utilisateurs: ADMIN only
-            if (i == 5) {
+            if (i == 6) {
                 if (isAdmin) {
                     nav.setOnMouseClicked(e -> navigateTo(viewPath, nav));
                 } else {
@@ -128,7 +116,6 @@ public class DashboardTemplateController implements Initializable {
             Parent view = loader.load();
             FXUtil.viewSwitch(contentArea, view);
 
-            // Update selected style
             vbxMenuNavigation.getChildren().forEach(n -> n.getStyleClass().remove("selected"));
             navNode.getStyleClass().add("selected");
 
@@ -168,13 +155,10 @@ public class DashboardTemplateController implements Initializable {
         boolean isMax = stage.isMaximized();
         stage.setMaximized(!isMax);
 
-        // Update Icon
         if (svgMax != null) {
             if (stage.isMaximized()) {
-                // Restore Icon (Two overlapping squares)
                 svgMax.setContent("M4 8H2v10h10v-2H4V8zm12 2V6h-6v4h6zm2-6h-8v6h8V4z");
             } else {
-                // Maximize Icon (One square)
                 svgMax.setContent("M4 4h16v16H4V4zm2 2v12h12V6H6z");
             }
         }
@@ -186,14 +170,12 @@ public class DashboardTemplateController implements Initializable {
         boolean newMode = !isDark;
         LocalUserData.setProperty("dark_mode", String.valueOf(newMode));
 
-        // Switch AtlantaFX base theme (User Agent Stylesheet)
         if (newMode) {
             Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerDark().getUserAgentStylesheet());
         } else {
             Application.setUserAgentStylesheet(new atlantafx.base.theme.PrimerLight().getUserAgentStylesheet());
         }
 
-        // Reload app CSS on scene
         root.getScene().getStylesheets().clear();
         root.getScene().getStylesheets().add(getClass().getResource("/com/sgpa/css/style.css").toExternalForm());
     }

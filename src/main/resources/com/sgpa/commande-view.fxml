@@ -28,10 +28,6 @@
             <VBox spacing="8" HBox.hgrow="NEVER" minWidth="320" prefWidth="320">
                 <Label text="Fournisseur" styleClass="label-bold"/>
                 <ComboBox fx:id="cmbFournisseur" maxWidth="Infinity"/>
-                <HBox spacing="5">
-                    <Button text="Modifier" onAction="#handleModifierFournisseur" styleClass="button"/>
-                    <Button text="Supprimer" onAction="#handleSupprimerFournisseur" styleClass="button-danger"/>
-                </HBox>
             </VBox>
 
             <Separator orientation="VERTICAL"/>
@@ -96,32 +92,6 @@
         </TableView>
     </VBox>
 
-    <!-- ============ FOURNISSEURS (section rétractable) ============ -->
-    <TitledPane text="➕ Ajouter un nouveau fournisseur" expanded="false">
-        <VBox spacing="10" styleClass="details-panel">
-            <GridPane hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints minWidth="80" prefWidth="80"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                    <ColumnConstraints minWidth="80" prefWidth="80"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                </columnConstraints>
-
-                <Label text="Nom:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                <TextField fx:id="txtNomFournisseur" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-
-                <Label text="Contact:" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
-                <TextField fx:id="txtContactFournisseur" GridPane.columnIndex="3" GridPane.rowIndex="0"/>
-
-                <Label text="Adresse:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                <TextField fx:id="txtAdresseFournisseur" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3"/>
-            </GridPane>
-
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button text="Ajouter Fournisseur" onAction="#handleAjouterFournisseur" styleClass="button-success"/>
-            </HBox>
-        </VBox>
-    </TitledPane>
 
 </VBox>
 </ScrollPane>
